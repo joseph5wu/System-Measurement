@@ -161,15 +161,15 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
-    file <<"operation: "  << i << result[0] << " "
-       << result[1] << " "
-       << result[2] << " "
-       << result[3] << " "
-       << result[4] << " "
-       << result[5] << " "
-       << result[6] << " "
-       << result[7] << "\n";
-    cout <<"operation: "  << i << "0 arg: " << result[0] << " "
+    file <<"operation "  << i << ":  0 arg: " << result[0] << " "
+       << "1 arg: " << result[1] << " "
+       << "2 arg: " << result[2] << " "
+       << "3 arg: " << result[3] << " "
+       << "4 arg: " << result[4] << " "
+       << "5 arg: " << result[5] << " "
+       << "6 arg: " << result[6] << " "
+       << "7 arg: " << result[7] << "\n";
+    cout <<"operation "  << i << ":  0 arg: " << result[0] << " "
        << "1 arg: " << result[1] << " "
        << "2 arg: " << result[2] << " "
        << "3 arg: " << result[3] << " "
