@@ -36,21 +36,23 @@ double CPUBenchmark::getLoopOverhead() {
 }
 
 void CPUBenchmark::measurementOverhead(fstream &file) {
-  count << "1. Measurement overhead starts:" << endl;
+  cout << "1. Measurement overhead starts:" << endl;
 
   double overhead;
-  count << "1.1 Get read overhead:" << endl;
+  cout << "1.1 Get read overhead:" << endl;
   file.open(READ_OVERHEAD_FILE, ios::out);
   if(file.is_open()) {
     for(int i = 0; i < OP_TIMES; i++) {
       overhead = getReadOverhead();
       file << overhead << "\n";
-      count << overhead << " ";
+      cout << overhead << " ";
     }
-    count << endl;
+    cout << endl;
     file.close();
   }
   else {
-    count << ""
+    cout << "Can't open file-" << READ_OVERHEAD_FILE << endl;
   }
+
+  
 }
