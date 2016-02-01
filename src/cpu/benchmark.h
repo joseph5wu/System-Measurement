@@ -15,18 +15,24 @@ class CPUBenchmark {
 private:
   double getReadOverhead();
   double getLoopOverhead();
+   double getLoopOverhead2();
   void getProcedureOverhead(vector<double> &);
   double getSystemCallOverhead();
   double getProcessCreationTime();
   double getKernelThreadCreationTime();
 
 public:
-  void prepare();
-
   /**
     1. Measurement overhead:
     Report the overhead of reading time, and report the overhead of using a loop to measure many iterations of an operation.
   */
+
+ // void warmup();
+
+  // 1. Measurement overhead:
+  // Report the overhead of reading time,
+  // and report the overhead of using a loop to measure many iterations of an operation.
+
   void measurementOverhead(fstream &);
 
   /**

@@ -18,6 +18,7 @@ double CPUBenchmark::getReadOverhead() {
   double sum = 0;
   uint64_t start, end;
 
+  warmup();
   for(int i = 0; i < TIMES; i++) {
     start = rdtsc();
     end = rdtsc();
@@ -31,6 +32,7 @@ double CPUBenchmark::getLoopOverhead() {
   double sum = 0;
   uint64_t start, end;
 
+  warmup();
   start = rdtsc();
   for(int i = 0; i < TIMES; i++) {
     // end loop to avoid new overhead
@@ -40,12 +42,13 @@ double CPUBenchmark::getLoopOverhead() {
   return (double)(end - start) / (double)TIMES;
 }
 
+
 void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     uint64_t totalTime = 0;
     uint64_t start, end;
 
     //0 argument
-    rdtsc();
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_0();
@@ -55,7 +58,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     result[0] = (double)totalTime / (double)TIMES;
 
     //1 argument
-    rdtsc();
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_1(1);
@@ -65,7 +68,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     result[1] = (double)totalTime / (double)TIMES;
 
      //2 argument
-    rdtsc();
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_2(1, 2);
@@ -74,8 +77,8 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     }
     result[2] = (double)totalTime / (double)TIMES;
 
-     //1 argument
-    rdtsc();
+     //3 argument
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_3(1, 2, 3);
@@ -84,8 +87,8 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     }
     result[3] = (double)totalTime / (double)TIMES;
 
-     //1 argument
-    rdtsc();
+     //4 argument
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_4(1, 2, 3, 4);
@@ -94,8 +97,8 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     }
     result[4] = (double)totalTime / (double)TIMES;
 
-     //1 argument
-    rdtsc();
+     //5 argument
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_5(1, 2, 3, 4, 5);
@@ -104,8 +107,8 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     }
     result[5] = (double)totalTime / (double)TIMES;
 
-     //1 argument
-    rdtsc();
+     //6 argument
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_6(1, 2, 3, 4, 5, 6);
@@ -114,8 +117,8 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     }
     result[6] = (double)totalTime / (double)TIMES;
 
-     //1 argument
-    rdtsc();
+     //7 argument
+    warmup();
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_7(1, 2, 3, 4, 5, 6, 7);
@@ -130,6 +133,7 @@ double CPUBenchmark::getSystemCallOverhead() {
   double sum = 0;
   uint64_t start, end;
 
+  warmup();
   for(int i = 0; i < TIMES; i++) {
     start = rdtsc();
     getppid();
@@ -146,6 +150,7 @@ double CPUBenchmark::getProcessCreationTime() {
   uint64_t start, end;
   pid_t pid;
 
+  warmup();
   for(int i = 0; i < TASK_OP_TIMES; i++) {
     start = rdtsc();
     pid = fork();
@@ -155,7 +160,7 @@ double CPUBenchmark::getProcessCreationTime() {
     }
     else {
       // parent process, wait child exit
-      wait();
+      wait(NULL);
       end = rdtsc();
       sum += (end - start);
     }
@@ -174,6 +179,7 @@ double CPUBenchmark::getKernelThreadCreationTime() {
   uint64_t start, end;
   pthread_t thread;
 
+  warmup();
   for(int i = 0; i < TASK_OP_TIMES; i++) {
     start = rdtsc();
     pthread_create(&thread, NULL, (void *) &threadStartRountine, NULL);
@@ -186,20 +192,15 @@ double CPUBenchmark::getKernelThreadCreationTime() {
   return (double) sum / (double) TASK_OP_TIMES;
 }
 
-void CPUBenchmark::prepare() {
-  warmup();
-  // cout << "warmup starts" << endl;
-}
-
 void CPUBenchmark::procedureCallOverhead(fstream &file){
-  cout << "Getting Procedure Call Overhead..." << endl;
+  cout << "2. Getting Procedure Call Overhead..." << endl;
   file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
   if (file.is_open()) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < OP_TIMES; i++) {
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
-    file << result[0] << " "
+    file <<"operation: "  << i << result[0] << " "
        << result[1] << " "
        << result[2] << " "
        << result[3] << " "
@@ -207,8 +208,17 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
        << result[5] << " "
        << result[6] << " "
        << result[7] << "\n";
+    cout <<"operation: "  << i << "0 arg: " << result[0] << " "
+       << "1 arg: " << result[1] << " "
+       << "2 arg: " << result[2] << " "
+       << "3 arg: " << result[3] << " "
+       << "4 arg: " << result[4] << " "
+       << "5 arg: " << result[5] << " "
+       << "6 arg: " << result[6] << " "
+       << "7 arg: " << result[7] << "\n";
     double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
         file << increment << "\n";
+        cout << "increment" << increment << "\n";
   }
   file.close();
   }
@@ -252,6 +262,7 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
     cout << "Can't open file-" << LOOP_OVERHEAD_FILE << endl;
   }
 }
+
 
 void CPUBenchmark::systemCallOverhead(fstream &file) {
   cout << "3. System call overhead starts:" << endl;
