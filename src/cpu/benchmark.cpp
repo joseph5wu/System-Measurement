@@ -23,7 +23,7 @@ double CPUBenchmark::getReadOverhead() {
 double CPUBenchmark::getLoopOverhead() {
   double sum = 0;
   uint64_t start, end;
-  warmup();
+ prepare();
   start = rdtsc();
   for(int i = 0; i < TIMES; i++) {
     // end loop to avoid new overhead
@@ -135,8 +135,8 @@ double CPUBenchmark::getSystemCallOverhead() {
   return (double) sum / (double) TIMES;
 }
 
-
 double CPUBenchmark::getProcessOverhead() {
+    prepare();
   double sum = 0;
   uint64_t start, end;
   pid_t pid;
@@ -151,8 +151,9 @@ double CPUBenchmark::getProcessOverhead() {
 }
 
 void CPUBenchmark::prepare() {
-
-
+  warmup();
+  // cout << "warmup starts" << endl;
+}
 
 void CPUBenchmark::procedureCallOverhead(fstream &file){
   cout << "Getting Procedure Call Overhead..." << endl;
@@ -162,15 +163,15 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
-    file <<"operation "  << i << ":  0 arg: " << result[0] << " "
-       << "1 arg: " << result[1] << " "
-       << "2 arg: " << result[2] << " "
-       << "3 arg: " << result[3] << " "
-       << "4 arg: " << result[4] << " "
-       << "5 arg: " << result[5] << " "
-       << "6 arg: " << result[6] << " "
-       << "7 arg: " << result[7] << "\n";
-    cout <<"operation "  << i << ":  0 arg: " << result[0] << " "
+    file <<"operation: "  << i << result[0] << " "
+       << result[1] << " "
+       << result[2] << " "
+       << result[3] << " "
+       << result[4] << " "
+       << result[5] << " "
+       << result[6] << " "
+       << result[7] << "\n";
+    cout <<"operation: "  << i << "0 arg: " << result[0] << " "
        << "1 arg: " << result[1] << " "
        << "2 arg: " << result[2] << " "
        << "3 arg: " << result[3] << " "
@@ -189,7 +190,10 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     return;
   }
 }
-*/
+
+
+
+
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 
@@ -225,6 +229,7 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
   }
 }
 
+
 void CPUBenchmark::systemCallOverhead(fstream &file) {
   cout << "3. System call overhead starts:" << endl;
 
@@ -243,3 +248,6 @@ void CPUBenchmark::systemCallOverhead(fstream &file) {
     cout << "Can't open file-" << SYSTEM_CALL_OVERHEAD_FILE << endl;
   }
 }
+
+
+
