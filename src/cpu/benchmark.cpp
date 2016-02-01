@@ -158,20 +158,29 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
   cout << "Getting Procedure Call Overhead..." << endl;
   file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
   if (file.is_open()) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < OP_TIMES; i++) {
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
-    file << result[0] << " "
-       << result[1] << " "
-       << result[2] << " "
-       << result[3] << " "
-       << result[4] << " "
-       << result[5] << " "
-       << result[6] << " "
-       << result[7] << "\n";
+    file <<"operation "  << i << ":  0 arg: " << result[0] << " "
+       << "1 arg: " << result[1] << " "
+       << "2 arg: " << result[2] << " "
+       << "3 arg: " << result[3] << " "
+       << "4 arg: " << result[4] << " "
+       << "5 arg: " << result[5] << " "
+       << "6 arg: " << result[6] << " "
+       << "7 arg: " << result[7] << "\n";
+    cout <<"operation "  << i << ":  0 arg: " << result[0] << " "
+       << "1 arg: " << result[1] << " "
+       << "2 arg: " << result[2] << " "
+       << "3 arg: " << result[3] << " "
+       << "4 arg: " << result[4] << " "
+       << "5 arg: " << result[5] << " "
+       << "6 arg: " << result[6] << " "
+       << "7 arg: " << result[7] << "\n";
     double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
         file << increment << "\n";
+        cout << "increment" << increment << "\n";
   }
   file.close();
   }
