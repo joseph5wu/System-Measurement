@@ -10,5 +10,15 @@ int main() {
 	benchmark.measurementOverhead(file);
 
 	cout << "A) Completes" << endl;
+
+	cout << "B) Procedure call overhead " << endl;
+	//benchmark.warmup();
+	benchmark.procedureCallOverhead(file);
+
+	cout << "B) Completes" << endl;
+
+
+
+
 	return 0;
 }
