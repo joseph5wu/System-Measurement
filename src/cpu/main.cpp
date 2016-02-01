@@ -6,11 +6,19 @@ int main() {
 	fstream file;
 
 	cout << "A) CPU, Scheduling, and OS Services starts:" << endl;
-	benchmark.prepare();
+	//benchmark.warmup();
 	benchmark.measurementOverhead(file);
 
-	benchmark.systemCallOverhead(file);
-
 	cout << "A) Completes" << endl;
+
+	cout << "B) Procedure call overhead " << endl;
+	//benchmark.warmup();
+	benchmark.procedureCallOverhead(file);
+
+	cout << "B) Completes" << endl;
+
+
+
+
 	return 0;
 }
