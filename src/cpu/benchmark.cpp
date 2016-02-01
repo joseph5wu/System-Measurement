@@ -31,12 +31,119 @@ double CPUBenchmark::getLoopOverhead() {
   return (double)(end - start) / (double)TIMES;
 }
 void CPUBenchmark::getProcedureOverhead(vector<double> &result){
-    double totalTime = 0;
+    uint64_t totalTime = 0;
+    uint64_t start, end;
+
+    //0 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_0();
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[0] = (double)totalTime / (double)TIMES;
+    
+    //1 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_1(1);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[1] = (double)totalTime / (double)TIMES;
+
+     //2 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_2(1, 2);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[2] = (double)totalTime / (double)TIMES;
+
+     //1 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_3(1, 2, 3);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[3] = (double)totalTime / (double)TIMES;
+
+     //1 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_4(1, 2, 3, 4);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[4] = (double)totalTime / (double)TIMES;
+
+     //1 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_5(1, 2, 3, 4, 5);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[5] = (double)totalTime / (double)TIMES;
+
+     //1 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_6(1, 2, 3, 4, 5, 6);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[6] = (double)totalTime / (double)TIMES;
+
+     //1 argument
+    rdtsc();
+    for (int i = 0; i < TIMES; i++) {
+      start = rdtsc();
+      fun_7(1, 2, 3, 4, 5, 6, 7);
+      end = rdtsc();
+      totalTime += (end - start);
+    }
+    ans[7] = (double)totalTime / (double)TIMES;
 
 }
 
 void CPUBenchmark::warmup() {
   warmup();
+}
+
+void CPUBenchmark::procedureCallOverhead(fstream &file){
+  cout << "Getting Procedure Call Overhead..." << endl;
+  file.open("Procedure_Call_Overhead.txt", ios::out);
+  if (file == NULL) {
+    cout << "File open failed!" << endl;
+    return;
+  }
+  for (int i = 0; i < 10; i++) {
+    vector<double> result(8, 0.0);
+    getProcedureOverhead(result);
+
+    file << setiosflags(ios::fixed)
+       << result[0] << " "
+         << result[1] << " "
+       << result[2] << " "
+       << result[3] << " "
+       << result[4] << " "
+       << result[5] << " "
+       << result[6] << " "
+       << result[7] << "\n";
+    double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
+        file << setiosflags(ios::fixed) << increment << "\n";
+  }
+  file.close();
 }
 
 void CPUBenchmark::measurementOverhead(fstream &file) {
