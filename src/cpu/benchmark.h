@@ -24,6 +24,7 @@ public:
   // Report the overhead of reading time,
   // and report the overhead of using a loop to measure many iterations of an operation.
   void measurementOverhead(fstream &);
+  void procedureCallOverhead(fstream &);
 };
 
 #endif
