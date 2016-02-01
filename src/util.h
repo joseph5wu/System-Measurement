@@ -9,6 +9,9 @@
 #define TASK_OP_TIMES 200
 
 
+static int fd[2];
+
+
 static inline unsigned getBase(void) {
     unsigned base,base_extra=0;
     unsigned cycles_low, cycles_high;
@@ -182,5 +185,11 @@ static inline void fun_5(int arg1, int arg2, int arg3, int arg4, int arg5){}
 static inline void fun_6(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6){}
 
 static inline void fun_7(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7){}
+static inline void *foo(void *) {
+	uint64_t t = rdtsc();
 
+    write(fd[1], (void*)&t, sizeof(uint64_t));
+
+    pthread_exit(NULL);
+}
 #endif
