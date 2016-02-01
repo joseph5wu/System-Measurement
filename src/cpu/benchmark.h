@@ -8,6 +8,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <vector>
+#include <pthread.h>
 using namespace std;
 
 class CPUBenchmark {
@@ -16,8 +17,8 @@ private:
   double getLoopOverhead();
   void getProcedureOverhead(vector<double> &);
   double getSystemCallOverhead();
-  double getProcessOverhead();
-  double getKernelThreadOverhead();
+  double getProcessCreationTime();
+  double getKernelThreadCreationTime();
 
 public:
   void prepare();

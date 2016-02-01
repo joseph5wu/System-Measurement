@@ -6,6 +6,13 @@
 #define LOOP_OVERHEAD_FILE DATA_DIR "loop_overhead.txt"
 #define PROCEDURE_CALL_OVERHEAD_FILE DATA_DIR "procedure_call_overhead.txt"
 #define SYSTEM_CALL_OVERHEAD_FILE DATA_DIR "sys_call_overhead.txt"
+#define PROCESS_CREATION_TIME_FILE DATA_DIR "process_creation_time.txt"
+#define THREAD_CREATION_TIME_FILE DATA_DIR "thread_creation_time.txt"
+
+/**
+  prototype for thread start routine
+*/
+void threadStartRountine(void *ptr);
 
 double CPUBenchmark::getReadOverhead() {
   double sum = 0;
@@ -46,7 +53,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
       totalTime += (end - start);
     }
     result[0] = (double)totalTime / (double)TIMES;
-    
+
     //1 argument
     rdtsc();
     for (int i = 0; i < TIMES; i++) {
@@ -134,7 +141,7 @@ double CPUBenchmark::getSystemCallOverhead() {
   return (double) sum / (double) TIMES;
 }
 
-double CPUBenchmark::getProcessOverhead() {
+double CPUBenchmark::getProcessCreationTime() {
   double sum = 0;
   uint64_t start, end;
   pid_t pid;
@@ -143,9 +150,40 @@ double CPUBenchmark::getProcessOverhead() {
     start = rdtsc();
     pid = fork();
     if(pid == 0) {
-      // child process
+      // child process, just exit
+      exit(1);
+    }
+    else {
+      // parent process, wait child exit
+      wait();
+      end = rdtsc();
+      sum += (end - start);
     }
   }
+
+  return (double) sum / (double) TASK_OP_TIMES;
+}
+
+void threadStartRountine(void *ptr) {
+  // avoid of overhead
+  pthread_exit(0);
+}
+
+double CPUBenchmark::getKernelThreadCreationTime() {
+  double sum = 0;
+  uint64_t start, end;
+  pthread_t thread;
+
+  for(int i = 0; i < TASK_OP_TIMES; i++) {
+    start = rdtsc();
+    pthread_create(&thread, NULL, (void *) &threadStartRountine, NULL);
+    // make the main process to wait new thread
+    pthread_join(thread, NULL);
+    end = rdtsc();
+    sum += end - start;
+  }
+
+  return (double) sum / (double) TASK_OP_TIMES;
 }
 
 void CPUBenchmark::prepare() {
@@ -232,4 +270,40 @@ void CPUBenchmark::systemCallOverhead(fstream &file) {
   else {
     cout << "Can't open file-" << SYSTEM_CALL_OVERHEAD_FILE << endl;
   }
+}
+
+void CPUBenchmark::taskCreationTime(fstream &file) {
+  cout << "4. Task creation time starts:" << endl;
+
+  double overhead;
+  cout << "4.1 Time to create and run a process:" << endl;
+  file.open(PROCESS_CREATION_TIME_FILE, ios::out);
+  if(file.is_open()) {
+      for(int i = 0; i < OP_TIMES; i++) {
+        overhead = getProcessCreationTime();
+        file << overhead << "\n";
+        cout << overhead << " ";
+      }
+      cout<<endl;
+      file.close();
+  }
+  else {
+    cout << "Can't open file-" << PROCESS_CREATION_TIME_FILE << endl;
+  }
+
+  cout << "4.2 Time to create and run a kernel-managed thread:" << endl;
+  file.open(THREAD_CREATION_TIME_FILE, ios::out);
+  if(file.is_open()) {
+      for(int i = 0; i < OP_TIMES; i++) {
+        overhead = getKernelThreadCreationTime();
+        file << overhead << "\n";
+        cout << overhead << " ";
+      }
+      cout<<endl;
+      file.close();
+  }
+  else {
+    cout << "Can't open file-" << THREAD_CREATION_TIME_FILE << endl;
+  }
+
 }
