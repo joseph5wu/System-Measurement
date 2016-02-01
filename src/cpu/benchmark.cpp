@@ -36,7 +36,7 @@ double CPUBenchmark::getLoopOverhead() {
 
   return (double)(end - start) / (double)TIMES;
 }
-
+/*
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 
@@ -71,3 +71,4 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
     cout << "Can't open file-" << LOOP_OVERHEAD_FILE << endl;
   }
 }
+*/
