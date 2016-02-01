@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <vector>
 #include <pthread.h>
+#include <sys/wait.h>
 using namespace std;
 
 class CPUBenchmark {
