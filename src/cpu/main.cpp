@@ -6,8 +6,10 @@ int main() {
 	fstream file;
 
 	cout << "A) CPU, Scheduling, and OS Services starts:" << endl;
-	//benchmark.warmup();
+	benchmark.prepare();
 	benchmark.measurementOverhead(file);
+
+	benchmark.systemCallOverhead(file);
 
 	cout << "A) Completes" << endl;
 	return 0;
