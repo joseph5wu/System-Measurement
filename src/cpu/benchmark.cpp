@@ -1,16 +1,13 @@
 #include "benchmark.h"
 #include "../util.h"
 
-#define DATA_DIR "../"
-#define READ_OVERHEAD_FILE DATA_DIR + "read_overhead.txt"
-#define LOOP_OVERHEAD_FILE DATA_DIR + "loop_overhead.txt"
+#define DATA_DIR "../../data/cpu/"
+#define READ_OVERHEAD_FILE DATA_DIR "read_overhead.txt"
+#define LOOP_OVERHEAD_FILE DATA_DIR "loop_overhead.txt"
 
 double CPUBenchmark::getReadOverhead() {
   double sum = 0;
   uint64_t start, end;
-
-  // warm up to make sure that the CPUID and RTDSC instruction are ready
-  warmup();
 
   for(int i = 0; i < TIMES; i++) {
     start = rdtsc();
@@ -25,9 +22,6 @@ double CPUBenchmark::getLoopOverhead() {
   double sum = 0;
   uint64_t start, end;
 
-  // warm up to make sure that the CPUID and RTDSC instruction are ready
-  warmup();
-
   start = rdtsc();
   for(int i = 0; i < TIMES; i++) {
     // end loop to avoid new overhead
@@ -36,7 +30,17 @@ double CPUBenchmark::getLoopOverhead() {
 
   return (double)(end - start) / (double)TIMES;
 }
-/*
+
+void CPUBenchmark::getProcedureOverhead(vector<double> &result){
+    double totalTime = 0;
+
+}
+
+void CPUBenchmark::warmup() {
+  warmup();
+}
+
+
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 

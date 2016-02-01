@@ -12,8 +12,10 @@ static inline void warmup(void) {
 
 static inline uint64_t rdtsc(void) {
   uint32_t lo, hi;
-  __asm__ __volatile__("pusha;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
-  __asm__ __volatile__("popa");
+  // __asm__ __volatile__("pusha;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
+  // __asm__ __volatile__("popa");
+  __asm__ __volatile__("cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
+
   return (((uint64_t)hi << 32) | lo);
 }
 
