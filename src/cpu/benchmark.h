@@ -1,5 +1,4 @@
 // CPU, Scheduling, and OS Services
-// 1. Measurement overhead: Report the overhead of reading time, and report the overhead of using a loop to measure many iterations of an operation.
 // 2. Procedure call overhead: Report as a function of number of integer arguments from 0-7. What is the increment overhead of an argument?
 // 3. System call overhead: Report the cost of a minimal system call. How does it compare to the cost of a procedure call? Note that some operating systems will cache the results of some system calls (e.g., idempotent system calls like getpid), so only the first call by a process will actually trap into the OS.
 // 4. Task creation time: Report the time to create and run both a process and a kernel thread (kernel threads run at user-level, but they are created and managed by the OS; e.g., pthread_create on modern Linux will create a kernel-managed thread). How do they compare?
@@ -7,3 +6,21 @@
 
 #ifndef CPU_BENCHMARK_H
 #define CPU_BENCHMARK_H
+
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+using namespace std;
+
+class CPUBenchmark {
+private:
+  double getReadOverhead();
+  double getLoopOverhead();
+
+public:
+  // 1. Measurement overhead:
+  // Report the overhead of reading time,
+  // and report the overhead of using a loop to measure many iterations of an operation.
+  void measurementOverhead(fstream &);
+}
+#endif
