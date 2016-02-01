@@ -12,7 +12,7 @@
 /**
   prototype for thread start routine
 */
-void threadStartRountine(void *ptr);
+void* threadStartRountine(void *);
 
 double CPUBenchmark::getReadOverhead() {
   double sum = 0;
@@ -169,7 +169,7 @@ double CPUBenchmark::getProcessCreationTime() {
   return (double) sum / (double) TASK_OP_TIMES;
 }
 
-void threadStartRountine(void *ptr) {
+void* threadStartRountine(void *ptr) {
   // avoid of overhead
   pthread_exit(0);
 }
@@ -182,7 +182,7 @@ double CPUBenchmark::getKernelThreadCreationTime() {
   warmup();
   for(int i = 0; i < TASK_OP_TIMES; i++) {
     start = rdtsc();
-    pthread_create(&thread, NULL, (void *) &threadStartRountine, NULL);
+    pthread_create(&thread, NULL, &threadStartRountine, NULL);
     // make the main process to wait new thread
     pthread_join(thread, NULL);
     end = rdtsc();
