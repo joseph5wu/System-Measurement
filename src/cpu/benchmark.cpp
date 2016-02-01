@@ -261,7 +261,6 @@ uint64_t CPUBenchmark::calculateThreadSwitchTime(){
 }
 
 
-void CPUBenchmark::prepare() {
 void* threadStartRountine(void *ptr) {
   // avoid of overhead
   pthread_exit(0);
@@ -402,6 +401,7 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
 }else{
   cout << "File open failed!" << endl;
     return;
+}
 }
 
 void CPUBenchmark::taskCreationTime(fstream &file) {
