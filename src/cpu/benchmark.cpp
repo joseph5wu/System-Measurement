@@ -1,6 +1,6 @@
 #include "benchmark.h"
 #include "../util.h"
-
+#include <math.h>
 #define DATA_DIR "../../data/cpu/"
 #define READ_OVERHEAD_FILE DATA_DIR "read_overhead.txt"
 #define LOOP_OVERHEAD_FILE DATA_DIR "loop_overhead.txt"
@@ -153,35 +153,91 @@ double CPUBenchmark::getProcessOverhead() {
 double CPUBenchmark::getProcessContextSwitchTime(){
   int fd[2];
   pipe(fd);
-  uint64_t s[CREAT_TIMES];
+  uint64_t s[TASK_OP_TIMES];
   double sum = 0;
   int i = 0;
 
-  while(i < CREAT_TIMES) {
+  while(i < TASK_OP_TIMES) {
     uint64_t res = calculateProcessSwitchTime(fd);
     if (res > 0) {
       s[i] = res;
       sum += s[i];
-      ++i;
+      i++;
     }
   }
 
   static double res;
-  res = (double)sum / (double)CREAT_TIMES;
+  res = (double)sum / (double)TASK_OP_TIMES;
 
   return res;
 }
 
 double* CPUBenchmark::getThreadContextSwitchTime(){
+  uint64_t s[TASK_OP_TIMES];
+  double sum = 0.0;
+  double tmp = 0.0;
 
+  int i = 0;
+    while (i < TASK_OP_TIMES) {
+    uint64_t res = calculateThreadSwitchTime();
+      if (res > 0) {
+      s[i] = res;
+      sum += s[i];
+      i++;
+    }
+  }
+
+    static double res[2];
+  res[0] = sum / (double)TASK_OP_TIMES;
+
+    for(i = 0; i < TASK_OP_TIMES; ++i) {
+    tmp += (double)(s[i] - res[0]) * (double)(s[i] - res[0]);
+  }
+
+    res[1] = sqrt(tmp / (double)(TASK_OP_TIMES - 1));
+  return res;
 }
 
-uint64_t CPUBenchmark::calculateProcessSwitchTime(int *){
+uint64_t CPUBenchmark::calculateProcessSwitchTime(int *fd){
+  uint64_t start;
+  uint64_t end;
+  pid_t cpid;
+  uint64_t result = 0;
 
+  if ((cpid = fork()) != 0) {
+    rdtsc();
+    start = rdtsc();
+
+    wait(NULL);
+    read(fd[0], (void*)&end, sizeof(uint64_t));
+  }
+  else {
+    end = rdtsc();
+
+    write(fd[1], (void*)&end, sizeof(uint64_t));
+    exit(1);
+  }
+  if(end > start){
+    result = end - start;
+  }
+  return (result);
 }
 
 uint64_t CPUBenchmark::calculateThreadSwitchTime(){
+  uint64_t threadSt;
+  uint64_t threadEd;
 
+  pthread_t thread;
+  pipe(fd);
+  pthread_create(&thread, NULL, foo, NULL);
+
+  rdtsc();
+
+  threadSt = rdtsc();
+  pthread_join(thread, NULL);
+  read(fd[0], (void*)&threadEd, sizeof(uint64_t));
+
+    return threadEd - threadSt;
 }
 
 
@@ -285,8 +341,7 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
       double contextSwitchAvg = getProcessContextSwitchTime();
-      file << setiosflags(ios::fixed)
-        << contextSwitchAvg[0] << "\n";
+      file << contextSwitchAvg << "\n";
     }
     file.close();
   }else{
@@ -299,8 +354,7 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
       double* kernelSwitchAvg = getThreadContextSwitchTime();
-       file <<  setiosflags(ios::fixed) 
-            << kernelSwitchAvg[0] << " " 
+       file << kernelSwitchAvg[0] << " " 
             << kernelSwitchAvg[1] << "\n";
       }
   file.close();
