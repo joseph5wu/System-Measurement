@@ -36,6 +36,10 @@ double CPUBenchmark::getLoopOverhead() {
 
   return (double)(end - start) / (double)TIMES;
 }
+void CPUBenchmark::getProcedureOverhead(vector<double> &result){
+    double totalTime = 0;
+
+}
 
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
