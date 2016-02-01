@@ -40,7 +40,6 @@ void CPUBenchmark::warmup() {
   warmup();
 }
 
-
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 
