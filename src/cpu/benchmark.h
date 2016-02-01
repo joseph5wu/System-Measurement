@@ -10,13 +10,14 @@
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
+#include <vector>
 using namespace std;
 
 class CPUBenchmark {
 private:
   double getReadOverhead();
   double getLoopOverhead();
-
+  void getProcedureOverhead(vector<double> &);
 public:
   void warmup();
   
