@@ -23,7 +23,7 @@ double CPUBenchmark::getReadOverhead() {
 double CPUBenchmark::getLoopOverhead() {
   double sum = 0;
   uint64_t start, end;
-
+  warmup();
   start = rdtsc();
   for(int i = 0; i < TIMES; i++) {
     // end loop to avoid new overhead
@@ -32,6 +32,7 @@ double CPUBenchmark::getLoopOverhead() {
 
   return (double)(end - start) / (double)TIMES;
 }
+
 
 void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     uint64_t totalTime = 0;
@@ -134,6 +135,7 @@ double CPUBenchmark::getSystemCallOverhead() {
   return (double) sum / (double) TIMES;
 }
 
+
 double CPUBenchmark::getProcessOverhead() {
   double sum = 0;
   uint64_t start, end;
@@ -149,9 +151,8 @@ double CPUBenchmark::getProcessOverhead() {
 }
 
 void CPUBenchmark::prepare() {
-  warmup();
-  // cout << "warmup starts" << endl;
-}
+
+
 
 void CPUBenchmark::procedureCallOverhead(fstream &file){
   cout << "Getting Procedure Call Overhead..." << endl;
@@ -179,8 +180,7 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     return;
   }
 }
-
-
+*/
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 
