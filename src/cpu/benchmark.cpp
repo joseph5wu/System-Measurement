@@ -256,7 +256,7 @@ uint64_t CPUBenchmark::calculateThreadSwitchTime(){
 
     return end - start;
 }
-void* CPUBenchmark::foo(void *)
+ void *  CPUBenchmark::foo(void *)
  {
     uint64_t t = rdtsc();
 
