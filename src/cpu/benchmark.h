@@ -20,7 +20,7 @@ private:
   double getSystemCallOverhead();
   double getProcessCreationTime();
   double getKernelThreadCreationTime();
-
+  void * foo(void *);
 public:
   /**
     1. Measurement overhead:
@@ -56,10 +56,12 @@ public:
   void contextSwitchOverhead(fstream &file);
   
   double getProcessContextSwitchTime();
-  double* getThreadContextSwitchTime();
+  double * getThreadContextSwitchTime();
 
   uint64_t calculateProcessSwitchTime(int *);
   uint64_t calculateThreadSwitchTime();
 };
+
+
 
 #endif

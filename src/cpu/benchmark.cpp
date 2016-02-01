@@ -224,11 +224,9 @@ uint64_t CPUBenchmark::calculateProcessSwitchTime(int *fd){
   uint64_t end;
   pid_t cpid;
   uint64_t result = 0;
-
+  warmup();
   if ((cpid = fork()) != 0) {
-    rdtsc();
     start = rdtsc();
-
     wait(NULL);
     read(fd[0], (void*)&end, sizeof(uint64_t));
   }
@@ -244,23 +242,28 @@ uint64_t CPUBenchmark::calculateProcessSwitchTime(int *fd){
 }
 
 uint64_t CPUBenchmark::calculateThreadSwitchTime(){
-  uint64_t threadSt;
-  uint64_t threadEd;
+  uint64_t start;
+  uint64_t end;
 
   pthread_t thread;
+  warmup();
   pipe(fd);
   pthread_create(&thread, NULL, foo, NULL);
 
-  rdtsc();
-
-  threadSt = rdtsc();
+  start = rdtsc();
   pthread_join(thread, NULL);
-  read(fd[0], (void*)&threadEd, sizeof(uint64_t));
+  read(fd[0], (void*)&end, sizeof(uint64_t));
 
-    return threadEd - threadSt;
+    return end - start;
 }
+void* CPUBenchmark::foo(void *)
+ {
+    uint64_t t = rdtsc();
 
+    write(fd[1], (void*)&t, sizeof(uint64_t));
 
+    pthread_exit(NULL);
+}
 void* threadStartRountine(void *ptr) {
   // avoid of overhead
   pthread_exit(0);
