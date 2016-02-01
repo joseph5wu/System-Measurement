@@ -75,4 +75,3 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
     cout << "Can't open file-" << LOOP_OVERHEAD_FILE << endl;
   }
 }
-*/
