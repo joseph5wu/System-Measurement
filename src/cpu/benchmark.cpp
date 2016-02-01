@@ -1,7 +1,9 @@
 #include "benchmark.h"
-#include "util.h"
+#include "../util.h"
 
-#define READ_OVERHEAD_FILE "../read_overhead.txt"
+#define DATA_DIR "../"
+#define READ_OVERHEAD_FILE DATA_DIR + "read_overhead.txt"
+#define LOOP_OVERHEAD_FILE DATA_DIR + "loop_overhead.txt"
 
 double CPUBenchmark::getReadOverhead() {
   double sum = 0;
@@ -54,5 +56,18 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
     cout << "Can't open file-" << READ_OVERHEAD_FILE << endl;
   }
 
-  
+  cout << "1.2 Get loop overhead:" << endl;
+  file.open(LOOP_OVERHEAD_FILE, ios::out);
+  if(file.is_open()) {
+    for(int i = 0; i < OP_TIMES; i++) {
+      overhead = getLoopOverhead();
+      file << overhead << "\n";
+      cout << overhead << " ";
+    }
+    cout << endl;
+    file.close();
+  }
+  else {
+    cout << "Can't open file-" << LOOP_OVERHEAD_FILE << endl;
+  }
 }

@@ -1,2 +1,5 @@
 all:
-	gcc rdtsc.c  -o cpu
+	g++ main.cpp benchmark.cpp -o benchmark
+
+clean:
+	rm -rf *o benchmark
