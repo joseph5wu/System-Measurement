@@ -171,32 +171,31 @@ double CPUBenchmark::getProcessCreationTime() {
   return (double) sum / (double) TASK_OP_TIMES;
 }
 
-<<<<<<< HEAD
 double CPUBenchmark::getProcessContextSwitchTime(){
   int fd[2];
   pipe(fd);
   uint64_t s[TASK_OP_TIMES];
-  double sum = 0;
+  uint64_t totalTime = 0;
   int i = 0;
 
   while(i < TASK_OP_TIMES) {
     uint64_t res = calculateProcessSwitchTime(fd);
     if (res > 0) {
       s[i] = res;
-      sum += s[i];
+      totalTime += s[i];
       i++;
     }
   }
 
   static double res;
-  res = (double)sum / (double)TASK_OP_TIMES;
+  res = (double)totalTime / (double)TASK_OP_TIMES;
 
   return res;
 }
 
 double* CPUBenchmark::getThreadContextSwitchTime(){
   uint64_t s[TASK_OP_TIMES];
-  double sum = 0.0;
+  uint64_t totalTime = 0.0;
   double tmp = 0.0;
 
   int i = 0;
@@ -204,13 +203,13 @@ double* CPUBenchmark::getThreadContextSwitchTime(){
     uint64_t res = calculateThreadSwitchTime();
       if (res > 0) {
       s[i] = res;
-      sum += s[i];
+      totalTime += s[i];
       i++;
     }
   }
 
     static double res[2];
-  res[0] = sum / (double)TASK_OP_TIMES;
+  res[0] = (double)totalTime / (double)TASK_OP_TIMES;
 
     for(i = 0; i < TASK_OP_TIMES; ++i) {
     tmp += (double)(s[i] - res[0]) * (double)(s[i] - res[0]);
@@ -235,7 +234,6 @@ uint64_t CPUBenchmark::calculateProcessSwitchTime(int *fd){
   }
   else {
     end = rdtsc();
-
     write(fd[1], (void*)&end, sizeof(uint64_t));
     exit(1);
   }
@@ -264,7 +262,6 @@ uint64_t CPUBenchmark::calculateThreadSwitchTime(){
 
 
 void CPUBenchmark::prepare() {
-=======
 void* threadStartRountine(void *ptr) {
   // avoid of overhead
   pthread_exit(0);
@@ -275,7 +272,6 @@ double CPUBenchmark::getKernelThreadCreationTime() {
   uint64_t start, end;
   pthread_t thread;
 
->>>>>>> beea0ec9d1561ec17ca614a54b90dd9010765862
   warmup();
   for(int i = 0; i < TASK_OP_TIMES; i++) {
     start = rdtsc();
@@ -379,7 +375,7 @@ void CPUBenchmark::systemCallOverhead(fstream &file) {
     cout << "Can't open file-" << SYSTEM_CALL_OVERHEAD_FILE << endl;
   }
 }
-<<<<<<< HEAD
+
 void CPUBenchmark::contextSwitchOverhead(fstream &file){
   cout << "Getting Context Switch Overhead..." << endl;
   file.open(PROCESS_CONTEXT_SWITCH_OVERHEAD, ios::out);
@@ -407,7 +403,6 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
   cout << "File open failed!" << endl;
     return;
 }
-=======
 
 void CPUBenchmark::taskCreationTime(fstream &file) {
   cout << "4. Task creation time starts:" << endl;
@@ -443,5 +438,4 @@ void CPUBenchmark::taskCreationTime(fstream &file) {
     cout << "Can't open file-" << THREAD_CREATION_TIME_FILE << endl;
   }
 
->>>>>>> beea0ec9d1561ec17ca614a54b90dd9010765862
 }

@@ -8,10 +8,9 @@
 // every task operation execution times
 #define TASK_OP_TIMES 200
 
-<<<<<<< HEAD
+
 static int fd[2];
 
-=======
 
 static inline unsigned getBase(void) {
     unsigned base,base_extra=0;
@@ -145,7 +144,6 @@ static inline unsigned getBase(void) {
     
     
 }
->>>>>>> beea0ec9d1561ec17ca614a54b90dd9010765862
 
 static inline void warmup(void) {
    getBase();
