@@ -21,7 +21,7 @@ private:
   double getSystemCallOverhead();
   double getProcessCreationTime();
   double getKernelThreadCreationTime();
-  void * foo(void *);
+  static void *foo(void *);
 public:
   /**
     1. Measurement overhead:
