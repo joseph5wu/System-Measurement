@@ -45,6 +45,14 @@ public:
     Report the time to create and run both a process and a kernel thread
   */
   void taskCreationTime(fstream &);
+
+  void contextSwitchOverhead(fstream &file);
+  
+  double getProcessContextSwitchTime();
+  double* getThreadContextSwitchTime();
+
+  uint64_t calculateProcessSwitchTime(int *);
+  uint64_t calculateThreadSwitchTime();
 };
 
 #endif

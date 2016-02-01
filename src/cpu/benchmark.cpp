@@ -5,6 +5,8 @@
 #define READ_OVERHEAD_FILE DATA_DIR "read_overhead.txt"
 #define LOOP_OVERHEAD_FILE DATA_DIR "loop_overhead.txt"
 #define PROCEDURE_CALL_OVERHEAD_FILE DATA_DIR "procedure_call_overhead.txt"
+#define PROCESS_CONTEXT_SWITCH_OVERHEAD DATA_DIR "process_context_switch_overhead.txt"
+#define THREAD_CONTEXT_SWITCH_OVERHEAD DATA_DIR "thread_context_switch_overhead.txt"
 #define SYSTEM_CALL_OVERHEAD_FILE DATA_DIR "sys_call_overhead.txt"
 
 double CPUBenchmark::getReadOverhead() {
@@ -148,6 +150,41 @@ double CPUBenchmark::getProcessOverhead() {
   }
 }
 
+double CPUBenchmark::getProcessContextSwitchTime(){
+  int fd[2];
+  pipe(fd);
+  uint64_t s[CREAT_TIMES];
+  double sum = 0;
+  int i = 0;
+
+  while(i < CREAT_TIMES) {
+    uint64_t res = calculateProcessSwitchTime(fd);
+    if (res > 0) {
+      s[i] = res;
+      sum += s[i];
+      ++i;
+    }
+  }
+
+  static double res;
+  res = (double)sum / (double)CREAT_TIMES;
+
+  return res;
+}
+
+double* CPUBenchmark::getThreadContextSwitchTime(){
+
+}
+
+uint64_t CPUBenchmark::calculateProcessSwitchTime(int *){
+
+}
+
+uint64_t CPUBenchmark::calculateThreadSwitchTime(){
+
+}
+
+
 void CPUBenchmark::prepare() {
   warmup();
   // cout << "warmup starts" << endl;
@@ -241,4 +278,34 @@ void CPUBenchmark::systemCallOverhead(fstream &file) {
   else {
     cout << "Can't open file-" << SYSTEM_CALL_OVERHEAD_FILE << endl;
   }
+}
+void CPUBenchmark::contextSwitchOverhead(fstream &file){
+  cout << "Getting Context Switch Overhead..." << endl;
+  file.open(PROCESS_CONTEXT_SWITCH_OVERHEAD, ios::out);
+  if (file.is_open()) {
+    for (int i = 0; i < OP_TIMES; i++) {
+      double contextSwitchAvg = getProcessContextSwitchTime();
+      file << setiosflags(ios::fixed)
+        << contextSwitchAvg[0] << "\n";
+    }
+    file.close();
+  }else{
+    cout << "File open failed!" << endl;
+    return;
+  }
+
+  cout << "Getting Thread Switch Overhead..." << endl;
+  file.open(THREAD_CONTEXT_SWITCH_OVERHEAD, ios::out);
+  if (file.is_open()) {
+    for (int i = 0; i < OP_TIMES; i++) {
+      double* kernelSwitchAvg = getThreadContextSwitchTime();
+       file <<  setiosflags(ios::fixed) 
+            << kernelSwitchAvg[0] << " " 
+            << kernelSwitchAvg[1] << "\n";
+      }
+  file.close();
+}else{
+  cout << "File open failed!" << endl;
+    return;
+}
 }
