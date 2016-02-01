@@ -17,9 +17,10 @@ class CPUBenchmark {
 private:
   double getReadOverhead();
   double getLoopOverhead();
+   double getLoopOverhead2();
   void getProcedureOverhead(vector<double> &);
 public:
-  void warmup();
+ // void warmup();
   
   // 1. Measurement overhead:
   // Report the overhead of reading time,
