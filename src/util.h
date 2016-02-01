@@ -3,8 +3,10 @@
 
 // every simple instruction execution times
 #define TIMES 100000
-// every demanded operation ececution times
+// every demanded operation execution times
 #define OP_TIMES 10
+// every task operation execution times
+#define TASK_OP_TIMES 200
 
 static inline void warmup(void) {
   // TODO
