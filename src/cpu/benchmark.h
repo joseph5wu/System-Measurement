@@ -1,6 +1,5 @@
 // CPU, Scheduling, and OS Services
-// // 4. Task creation time: Report the time to create and run both a process and a kernel thread (kernel threads run at user-level, but they are created and managed by the OS; e.g., pthread_create on modern Linux will create a kernel-managed thread). How do they compare?
-// 5. Context switch time: Report the time to context switch from one process to another, and from one kernel thread to another. How do they compare? In the past students have found using blocking pipes to be useful for forcing context switches.
+// // // 5. Context switch time: Report the time to context switch from one process to another, and from one kernel thread to another. How do they compare? In the past students have found using blocking pipes to be useful for forcing context switches.
 
 #ifndef CPU_BENCHMARK_H
 #define CPU_BENCHMARK_H
@@ -17,6 +16,8 @@ private:
   double getLoopOverhead();
   void getProcedureOverhead(vector<double> &);
   double getSystemCallOverhead();
+  double getProcessOverhead();
+  double getKernelThreadOverhead();
 
 public:
   void prepare();
@@ -38,6 +39,12 @@ public:
     Report the cost of a minimal system call. How does it compare to the cost of a procedure call?
   */
   void systemCallOverhead(fstream &);
+
+  /**
+    4. Task creation time:
+    Report the time to create and run both a process and a kernel thread
+  */
+  void taskCreationTime(fstream &);
 };
 
 #endif

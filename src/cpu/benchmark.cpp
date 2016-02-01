@@ -134,6 +134,20 @@ double CPUBenchmark::getSystemCallOverhead() {
   return (double) sum / (double) TIMES;
 }
 
+double CPUBenchmark::getProcessOverhead() {
+  double sum = 0;
+  uint64_t start, end;
+  pid_t pid;
+
+  for(int i = 0; i < TASK_OP_TIMES; i++) {
+    start = rdtsc();
+    pid = fork();
+    if(pid == 0) {
+      // child process
+    }
+  }
+}
+
 void CPUBenchmark::prepare() {
   warmup();
   // cout << "warmup starts" << endl;
