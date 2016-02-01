@@ -297,7 +297,7 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
-    file <<"operation: "  << i << result[0] << " "
+    /*file <<"operation: "  << i << result[0] << " "
        << result[1] << " "
        << result[2] << " "
        << result[3] << " "
@@ -312,10 +312,10 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
        << "4 arg: " << result[4] << " "
        << "5 arg: " << result[5] << " "
        << "6 arg: " << result[6] << " "
-       << "7 arg: " << result[7] << "\n";
+       << "7 arg: " << result[7] << "\n";*/
     double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
         file << increment << "\n";
-        cout << "increment" << increment << "\n";
+        //cout << "increment" << increment << "\n";
   }
   file.close();
   }
