@@ -1,7 +1,7 @@
 #include "benchmark.h"
 #include "../util.h"
 
-#define DATA_DIR "../../data/cpu"
+#define DATA_DIR "../../data/cpu/"
 #define READ_OVERHEAD_FILE DATA_DIR "read_overhead.txt"
 #define LOOP_OVERHEAD_FILE DATA_DIR "loop_overhead.txt"
 
