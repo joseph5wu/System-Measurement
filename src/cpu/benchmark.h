@@ -15,7 +15,7 @@ using namespace std;
 class CPUBenchmark {
 private:
   double getReadOverhead();
-  double getLoopOverhead();
+  uint64_t getLoopOverhead(int);
   double getLoopOverhead2();
   void getProcedureOverhead(vector<double> &);
   double getSystemCallOverhead(bool);

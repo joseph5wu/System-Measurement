@@ -162,8 +162,8 @@ static inline uint64_t rdtsc(void) {
     // __asm__("pop %rcx");
     // __asm__("pop %rdx");
     // __asm__("pop %rbx");
-  __asm__ __volatile__("xor %%eax, %%eax;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
-  // __asm__ volatile ("rdtsc" : "=a" (lo), "=d" (hi));
+  // __asm__ __volatile__("xor %%eax, %%eax;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
+  __asm__ volatile ("cpuid;" "rdtsc" : "=a" (lo), "=d" (hi));
 
 
   return (((uint64_t)hi << 32) | lo);

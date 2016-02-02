@@ -31,18 +31,17 @@ double CPUBenchmark::getReadOverhead() {
   return (double)sum / (double)TIMES;
 }
 
-double CPUBenchmark::getLoopOverhead() {
-  uint64_t sum = 0;
+uint64_t CPUBenchmark::getLoopOverhead(int times) {
   uint64_t start, end;
 
   warmup();
   start = rdtsc();
-  for(int i = 0; i < TIMES; i++) {
+  for(int i = 0; i < times; i++) {
     // end loop to avoid new overhead
   }
   end = rdtsc();
 
-  return (double)(end - start) / (double)TIMES;
+  return end - start;
 }
 
 
@@ -327,16 +326,25 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
     cout << "Can't open file-" << READ_OVERHEAD_FILE << endl;
   }
 
-  cout << "1.2 Get loop overhead: " ;
-  sum = 0;
+  cout << "1.2 Get loop overhead:" << endl;
   file.open(LOOP_OVERHEAD_FILE, ios::out);
   if(file.is_open()) {
-    for(int i = 0; i < OP_TIMES; i++) {
-      overhead = getLoopOverhead();
-      file << overhead << "\n";
-      sum += overhead;
+    int LOOP_TIMES_ARRAY[15] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+    for(int i = 0; i < 15; i++) {
+      overhead = getLoopOverhead(LOOP_TIMES_ARRAY[i]);
+      file << LOOP_TIMES_ARRAY[i] << " " << overhead << " ";
+
+      cout << "Loop #" << LOOP_TIMES_ARRAY[i] << ": " << overhead << " ";
+
+      if(i != 0) {
+        file << (double) overhead / LOOP_TIMES_ARRAY[i] << "\n";
+        cout << (double) overhead / LOOP_TIMES_ARRAY[i] << " cycles" << endl;
+      }
+      else {
+        file << (double) overhead << "\n";
+        cout << (double) overhead << " cycles" << endl;
+      }
     }
-    cout << (sum / OP_TIMES) << " cycles" << endl;
     file.close();
   }
   else {
