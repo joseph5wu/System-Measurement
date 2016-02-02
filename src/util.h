@@ -205,10 +205,23 @@ static inline uint64_t rdtscEnd(void) {
 
 static inline void warmup(void) {
   //  getBase();
-  rdtscStart();
-  rdtscEnd();
-  rdtscStart();
-  rdtscEnd();
+
+     asm volatile (
+    "CPUID\n\t"
+    "RDTSCP\n\t"
+    );
+    asm volatile (
+    "RDTSCP\n\t"
+    "CPUID\n\t"
+    );
+    asm volatile (
+    "RDTSCP\n\t"
+    "CPUID\n\t"
+    );
+    asm volatile (
+    "RDTSCP\n\t"
+    "CPUID\n\t"
+    );
 }
 
 static inline void fun_0(){}
