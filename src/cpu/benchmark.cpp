@@ -439,6 +439,7 @@ void CPUBenchmark::taskCreationTime(fstream &file) {
       for(int i = 0; i < OP_TIMES; i++) {
         overhead = getProcessCreationTime();
         file << overhead << "\n";
+        file.flush();
         sum += overhead;
       }
       cout << (sum / OP_TIMES) << " cycles" << endl;
@@ -485,7 +486,7 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
     return;
   }
 
-  cout << "5.2 Thread Context Switch Overhead: " << endl;
+  cout << "5.2 Thread Context Switch Overhead: ";
   file.open(THREAD_CONTEXT_SWITCH_OVERHEAD, ios::out);
   sum = 0;
   if (file.is_open()) {
