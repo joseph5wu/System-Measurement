@@ -292,6 +292,7 @@ double CPUBenchmark::getKernelThreadCreationTime() {
 void CPUBenchmark::procedureCallOverhead(fstream &file){
   cout << "2. Getting Procedure Call Overhead..." << endl;
   file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
+  
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
     vector<double> result(8, 0.0);
