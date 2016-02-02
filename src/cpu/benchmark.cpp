@@ -264,22 +264,22 @@ uint64_t CPUBenchmark::calculateThreadSwitchTime(){
 
   pthread_t thread;
   warmup();
-  pipe(fd);
-  pthread_create(&thread, NULL, foo, NULL);
+  // pipe(fd);
+  pthread_create(&thread, NULL, foo, &end);
 
   start = rdtscStart();
   pthread_join(thread, NULL);
-  read(fd[0], (void*)&end, sizeof(uint64_t));
+  // read(fd[0], (void*)&end, sizeof(uint64_t));
 
     return end - start;
 }
 
 
- void *  CPUBenchmark::foo(void *)
+ void *  CPUBenchmark::foo(void * result)
  {
-    uint64_t t = rdtscEnd();
-
-    write(fd[1], (void*)&t, sizeof(uint64_t));
+     uint64_t end = rdtscEnd();
+     *((uint64_t*)result) = end;
+    // write(fd[1], (void*)&t, sizeof(uint64_t));
 
     pthread_exit(NULL);
 }
