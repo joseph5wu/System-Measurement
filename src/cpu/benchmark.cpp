@@ -307,43 +307,6 @@ double CPUBenchmark::getKernelThreadCreationTime() {
   return (double) sum / (double) TASK_OP_TIMES;
 }
 
-void CPUBenchmark::procedureCallOverhead(fstream &file){
-  cout << "2. Getting Procedure Call Overhead..." << endl;
-  file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
-
-  if (file.is_open()) {
-    for (int i = 0; i < OP_TIMES; i++) {
-    vector<double> result(8, 0.0);
-    getProcedureOverhead(result);
-
-    file << result[0] << " "
-       << result[1] << " "
-       << result[2] << " "
-       << result[3] << " "
-       << result[4] << " "
-       << result[5] << " "
-       << result[6] << " "
-       << result[7] << "\n";
-    /*cout <<"operation: "  << i << "0 arg: " << result[0] << " "
-       << "1 arg: " << result[1] << " "
-       << "2 arg: " << result[2] << " "
-       << "3 arg: " << result[3] << " "
-       << "4 arg: " << result[4] << " "
-       << "5 arg: " << result[5] << " "
-       << "6 arg: " << result[6] << " "
-       << "7 arg: " << result[7] << "\n";*/
-    //double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
-      //  file << increment << "\n";
-        //cout << "increment" << increment << "\n";
-  }
-  file.close();
-  }
-  else{
-    cout << "Can't open file-" << PROCEDURE_CALL_OVERHEAD_FILE << endl;
-    return;
-  }
-}
-
 void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 
@@ -381,6 +344,42 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
   }
 }
 
+void CPUBenchmark::procedureCallOverhead(fstream &file){
+  cout << "2. Getting Procedure Call Overhead..." << endl;
+  file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
+
+  if (file.is_open()) {
+    for (int i = 0; i < OP_TIMES; i++) {
+    vector<double> result(8, 0.0);
+    getProcedureOverhead(result);
+
+    file << result[0] << " "
+       << result[1] << " "
+       << result[2] << " "
+       << result[3] << " "
+       << result[4] << " "
+       << result[5] << " "
+       << result[6] << " "
+       << result[7] << "\n";
+    /*cout <<"operation: "  << i << "0 arg: " << result[0] << " "
+       << "1 arg: " << result[1] << " "
+       << "2 arg: " << result[2] << " "
+       << "3 arg: " << result[3] << " "
+       << "4 arg: " << result[4] << " "
+       << "5 arg: " << result[5] << " "
+       << "6 arg: " << result[6] << " "
+       << "7 arg: " << result[7] << "\n";*/
+    //double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
+      //  file << increment << "\n";
+        //cout << "increment" << increment << "\n";
+  }
+  file.close();
+  }
+  else{
+    cout << "Can't open file-" << PROCEDURE_CALL_OVERHEAD_FILE << endl;
+    return;
+  }
+}
 
 void CPUBenchmark::systemCallOverhead(fstream &file) {
   cout << "3. System call overhead starts:" << endl;
@@ -419,35 +418,6 @@ void CPUBenchmark::systemCallOverhead(fstream &file) {
   }
 }
 
-void CPUBenchmark::contextSwitchOverhead(fstream &file){
-  cout << "5. Getting Context Switch Overhead..." << endl;
-  file.open(PROCESS_CONTEXT_SWITCH_OVERHEAD, ios::out);
-  if (file.is_open()) {
-    for (int i = 0; i < OP_TIMES; i++) {
-      double contextSwitchAvg = getProcessContextSwitchTime();
-      file << contextSwitchAvg << "\n";
-    }
-    file.close();
-  }else{
-    cout << "File open failed!" << endl;
-    return;
-  }
-
-  cout << "Getting Thread Switch Overhead..." << endl;
-  file.open(THREAD_CONTEXT_SWITCH_OVERHEAD, ios::out);
-  if (file.is_open()) {
-    for (int i = 0; i < OP_TIMES; i++) {
-      double* kernelSwitchAvg = getThreadContextSwitchTime();
-     //  file << kernelSwitchAvg[0] << " "
-     //       << kernelSwitchAvg[1] << "\n";
-      file << kernelSwitchAvg[0] << "\n";
-      }
-  file.close();
-}else{
-  cout << "File open failed!" << endl;
-    return;
-}
-}
 
 void CPUBenchmark::taskCreationTime(fstream &file) {
   cout << "4. Task creation time starts:" << endl;
@@ -485,5 +455,34 @@ void CPUBenchmark::taskCreationTime(fstream &file) {
   else {
     cout << "Can't open file-" << THREAD_CREATION_TIME_FILE << endl;
   }
+}
 
+void CPUBenchmark::contextSwitchOverhead(fstream &file){
+  cout << "5. Getting Context Switch Overhead..." << endl;
+  file.open(PROCESS_CONTEXT_SWITCH_OVERHEAD, ios::out);
+  if (file.is_open()) {
+    for (int i = 0; i < OP_TIMES; i++) {
+      double contextSwitchAvg = getProcessContextSwitchTime();
+      file << contextSwitchAvg << "\n";
+    }
+    file.close();
+  }else{
+    cout << "File open failed!" << endl;
+    return;
+  }
+
+  cout << "Getting Thread Switch Overhead..." << endl;
+  file.open(THREAD_CONTEXT_SWITCH_OVERHEAD, ios::out);
+  if (file.is_open()) {
+    for (int i = 0; i < OP_TIMES; i++) {
+      double* kernelSwitchAvg = getThreadContextSwitchTime();
+     //  file << kernelSwitchAvg[0] << " "
+     //       << kernelSwitchAvg[1] << "\n";
+      file << kernelSwitchAvg[0] << "\n";
+    }
+    file.close();
+  }else{
+    cout << "File open failed!" << endl;
+    return;
+  }
 }
