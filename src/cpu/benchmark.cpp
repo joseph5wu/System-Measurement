@@ -353,7 +353,7 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
 }
 
 void CPUBenchmark::procedureCallOverhead(fstream &file){
-  cout << "2. Getting Procedure Call Overhead..." << endl;
+  cout << "2. Procedure Call Overhead Starts:" << endl;
   file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
 
   if (file.is_open()) {
@@ -380,8 +380,8 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     //double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
       //  file << increment << "\n";
         //cout << "increment" << increment << "\n";
-  }
-  file.close();
+      }
+      file.close();
   }
   else{
     cout << "Can't open file-" << PROCEDURE_CALL_OVERHEAD_FILE << endl;
@@ -466,28 +466,37 @@ void CPUBenchmark::taskCreationTime(fstream &file) {
 }
 
 void CPUBenchmark::contextSwitchOverhead(fstream &file){
-  cout << "5. Getting Context Switch Overhead..." << endl;
+  cout << "5. Context Switch Overhead:" << endl;
+
+  double sum = 0;
+  cout << "5.1 Process Context Switch Overhead: ";
+  cout.flush();
   file.open(PROCESS_CONTEXT_SWITCH_OVERHEAD, ios::out);
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
       double contextSwitchAvg = getProcessContextSwitchTime();
       file << contextSwitchAvg << "\n";
+      sum += contextSwitchAvg;
     }
+    cout << sum / OP_TIMES << endl;
     file.close();
   }else{
-    cout << "File open failed!" << endl;
+    cout << "File open failed!" << " cycles" << endl;
     return;
   }
 
-  cout << "Getting Thread Switch Overhead..." << endl;
+  cout << "5.2 Thread Context Switch Overhead: " << endl;
   file.open(THREAD_CONTEXT_SWITCH_OVERHEAD, ios::out);
+  sum = 0;
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
       double* kernelSwitchAvg = getThreadContextSwitchTime();
      //  file << kernelSwitchAvg[0] << " "
      //       << kernelSwitchAvg[1] << "\n";
       file << kernelSwitchAvg[0] << "\n";
+      sum += kernelSwitchAvg[0];
     }
+    cout << sum / OP_TIMES << " cycles" << endl;
     file.close();
   }else{
     cout << "File open failed!" << endl;
