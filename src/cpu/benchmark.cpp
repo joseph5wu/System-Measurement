@@ -209,13 +209,13 @@ double* CPUBenchmark::getThreadContextSwitchTime(){
   }
 
     static double res[2];
-  res[0] = (double)totalTime / (double)TASK_OP_TIMES;
+    res[0] = (double)totalTime / (double)TASK_OP_TIMES;
 
     for(i = 0; i < TASK_OP_TIMES; ++i) {
     tmp += (double)(s[i] - res[0]) * (double)(s[i] - res[0]);
   }
 
-    res[1] = sqrt(tmp / (double)(TASK_OP_TIMES - 1));
+     res[1] = sqrt(tmp / (double)(TASK_OP_TIMES - 1));
   return res;
 }
 
@@ -297,7 +297,7 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
     vector<double> result(8, 0.0);
     getProcedureOverhead(result);
 
-    /*file <<"operation: "  << i << result[0] << " "
+    file << result[0] << " "
        << result[1] << " "
        << result[2] << " "
        << result[3] << " "
@@ -305,7 +305,7 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
        << result[5] << " "
        << result[6] << " "
        << result[7] << "\n";
-    cout <<"operation: "  << i << "0 arg: " << result[0] << " "
+    /*cout <<"operation: "  << i << "0 arg: " << result[0] << " "
        << "1 arg: " << result[1] << " "
        << "2 arg: " << result[2] << " "
        << "3 arg: " << result[3] << " "
@@ -313,8 +313,8 @@ void CPUBenchmark::procedureCallOverhead(fstream &file){
        << "5 arg: " << result[5] << " "
        << "6 arg: " << result[6] << " "
        << "7 arg: " << result[7] << "\n";*/
-    double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
-        file << increment << "\n";
+    //double increment = (result[7] + result[6] + result[5] + result[4] - result[3] - result[2] - result[1] - result[0]) / 16;
+      //  file << increment << "\n";
         //cout << "increment" << increment << "\n";
   }
   file.close();
@@ -399,8 +399,9 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
       double* kernelSwitchAvg = getThreadContextSwitchTime();
-       file << kernelSwitchAvg[0] << " " 
-            << kernelSwitchAvg[1] << "\n";
+     //  file << kernelSwitchAvg[0] << " " 
+     //       << kernelSwitchAvg[1] << "\n";
+      file << kernelSwitchAvg[0] << "\n";
       }
   file.close();
 }else{
