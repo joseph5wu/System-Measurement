@@ -23,8 +23,8 @@ double CPUBenchmark::getReadOverhead() {
 
   warmup();
   for(int i = 0; i < TIMES; i++) {
-    start = rdtsc();
-    end = rdtsc();
+    start = rdtscStart();
+    end = rdtscEnd();
     sum += (end - start);
   }
 
@@ -35,11 +35,11 @@ uint64_t CPUBenchmark::getLoopOverhead(int times) {
   uint64_t start, end;
 
   warmup();
-  start = rdtsc();
+  start = rdtscStart();
   for(int i = 0; i < times; i++) {
     // end loop to avoid new overhead
   }
-  end = rdtsc();
+  end = rdtscEnd();
 
   return end - start;
 }
@@ -52,9 +52,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     //0 argument
     warmup();
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_0();
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[0] = (double)totalTime / (double)TIMES;
@@ -63,9 +63,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_1(1);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[1] = (double)totalTime / (double)TIMES;
@@ -74,9 +74,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_2(1, 2);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[2] = (double)totalTime / (double)TIMES;
@@ -85,9 +85,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_3(1, 2, 3);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[3] = (double)totalTime / (double)TIMES;
@@ -96,9 +96,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_4(1, 2, 3, 4);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[4] = (double)totalTime / (double)TIMES;
@@ -107,9 +107,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_5(1, 2, 3, 4, 5);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[5] = (double)totalTime / (double)TIMES;
@@ -118,9 +118,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_6(1, 2, 3, 4, 5, 6);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[6] = (double)totalTime / (double)TIMES;
@@ -129,9 +129,9 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
     warmup();
     totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
-      start = rdtsc();
+      start = rdtscStart();
       fun_7(1, 2, 3, 4, 5, 6, 7);
-      end = rdtsc();
+      end = rdtscEnd();
       totalTime += (end - start);
     }
     result[7] = (double)totalTime / (double)TIMES;
@@ -145,16 +145,16 @@ double CPUBenchmark::getSystemCallOverhead(bool isCached) {
   for(int i = 0; i < TIMES; i++) {
     // in order to reduce overhead, leave the time count inside the if block
     if(isCached) {
-      start = rdtsc();
+      start = rdtscStart();
       // this one has cache
       getpid();
-      end = rdtsc();
+      end = rdtscEnd();
     }
     else {
-      start = rdtsc();
+      start = rdtscStart();
       // this one don't have cache
       getppid();
-      end = rdtsc();
+      end = rdtscEnd();
     }
 
     sum += (end - start);
@@ -171,7 +171,7 @@ double CPUBenchmark::getProcessCreationTime() {
 
   warmup();
   for(int i = 0; i < TASK_OP_TIMES; i++) {
-    start = rdtsc();
+    start = rdtscStart();
     pid = fork();
     if(pid == 0) {
       // child process, just exit
@@ -180,7 +180,7 @@ double CPUBenchmark::getProcessCreationTime() {
     else {
       // parent process, wait child exit
       wait(NULL);
-      end = rdtsc();
+      end = rdtscEnd();
       sum += (end - start);
     }
   }
@@ -243,12 +243,12 @@ uint64_t CPUBenchmark::calculateProcessSwitchTime(int *fd){
   uint64_t result = 0;
   warmup();
   if ((cpid = fork()) != 0) {
-    start = rdtsc();
+    start = rdtscStart();
     wait(NULL);
     read(fd[0], (void*)&end, sizeof(uint64_t));
   }
   else {
-    end = rdtsc();
+    end = rdtscEnd();
     write(fd[1], (void*)&end, sizeof(uint64_t));
     exit(1);
   }
@@ -267,7 +267,7 @@ uint64_t CPUBenchmark::calculateThreadSwitchTime(){
   pipe(fd);
   pthread_create(&thread, NULL, foo, NULL);
 
-  start = rdtsc();
+  start = rdtscStart();
   pthread_join(thread, NULL);
   read(fd[0], (void*)&end, sizeof(uint64_t));
 
@@ -277,7 +277,7 @@ uint64_t CPUBenchmark::calculateThreadSwitchTime(){
 
  void *  CPUBenchmark::foo(void *)
  {
-    uint64_t t = rdtsc();
+    uint64_t t = rdtscEnd();
 
     write(fd[1], (void*)&t, sizeof(uint64_t));
 
@@ -295,11 +295,11 @@ double CPUBenchmark::getKernelThreadCreationTime() {
 
   warmup();
   for(int i = 0; i < TASK_OP_TIMES; i++) {
-    start = rdtsc();
+    start = rdtscStart();
     pthread_create(&thread, NULL, &threadStartRountine, NULL);
     // make the main process to wait new thread
     pthread_join(thread, NULL);
-    end = rdtsc();
+    end = rdtscEnd();
     sum += end - start;
   }
 
