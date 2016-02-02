@@ -8,6 +8,7 @@
 #define PROCESS_CONTEXT_SWITCH_OVERHEAD DATA_DIR "process_context_switch_overhead.txt"
 #define THREAD_CONTEXT_SWITCH_OVERHEAD DATA_DIR "thread_context_switch_overhead.txt"
 #define SYSTEM_CALL_OVERHEAD_FILE DATA_DIR "sys_call_overhead.txt"
+#define CACHED_SYSTEM_CALL_OVERHEAD_FILE DATA_DIR "cached_sys_call_overhead.txt"
 #define PROCESS_CREATION_TIME_FILE DATA_DIR "process_creation_time.txt"
 #define THREAD_CREATION_TIME_FILE DATA_DIR "thread_creation_time.txt"
 
@@ -17,7 +18,7 @@
 void* threadStartRountine(void *);
 
 double CPUBenchmark::getReadOverhead() {
-  double sum = 0;
+  uint64_t sum = 0;
   uint64_t start, end;
 
   warmup();
@@ -31,7 +32,7 @@ double CPUBenchmark::getReadOverhead() {
 }
 
 double CPUBenchmark::getLoopOverhead() {
-  double sum = 0;
+  uint64_t sum = 0;
   uint64_t start, end;
 
   warmup();
@@ -61,6 +62,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
     //1 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_1(1);
@@ -71,6 +73,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
      //2 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_2(1, 2);
@@ -81,6 +84,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
      //3 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_3(1, 2, 3);
@@ -91,6 +95,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
      //4 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_4(1, 2, 3, 4);
@@ -101,6 +106,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
      //5 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_5(1, 2, 3, 4, 5);
@@ -111,6 +117,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
      //6 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_6(1, 2, 3, 4, 5, 6);
@@ -121,6 +128,7 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
 
      //7 argument
     warmup();
+    totalTime = 0;
     for (int i = 0; i < TIMES; i++) {
       start = rdtsc();
       fun_7(1, 2, 3, 4, 5, 6, 7);
@@ -128,18 +136,27 @@ void CPUBenchmark::getProcedureOverhead(vector<double> &result){
       totalTime += (end - start);
     }
     result[7] = (double)totalTime / (double)TIMES;
-
 }
 
-double CPUBenchmark::getSystemCallOverhead() {
-  double sum = 0;
+double CPUBenchmark::getSystemCallOverhead(bool isCached) {
+  uint64_t sum = 0;
   uint64_t start, end;
 
   warmup();
   for(int i = 0; i < TIMES; i++) {
-    start = rdtsc();
-    getppid();
-    end = rdtsc();
+    // in order to reduce overhead, leave the time count inside the if block
+    if(isCached) {
+      start = rdtsc();
+      // this one has cache
+      getpid();
+      end = rdtsc();
+    }
+    else {
+      start = rdtsc();
+      // this one don't have cache
+      getppid();
+      end = rdtsc();
+    }
 
     sum += (end - start);
   }
@@ -147,8 +164,9 @@ double CPUBenchmark::getSystemCallOverhead() {
   return (double) sum / (double) TIMES;
 }
 
+
 double CPUBenchmark::getProcessCreationTime() {
-  double sum = 0;
+  uint64_t sum = 0;
   uint64_t start, end;
   pid_t pid;
 
@@ -292,7 +310,7 @@ double CPUBenchmark::getKernelThreadCreationTime() {
 void CPUBenchmark::procedureCallOverhead(fstream &file){
   cout << "2. Getting Procedure Call Overhead..." << endl;
   file.open(PROCEDURE_CALL_OVERHEAD_FILE, ios::out);
-  
+
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
     vector<double> result(8, 0.0);
@@ -330,30 +348,32 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
   cout << "1. Measurement overhead starts:" << endl;
 
   double overhead;
-  cout << "1.1 Get read overhead:" << endl;
+  double sum = 0;
+  cout << "1.1 Get read overhead: ";
   file.open(READ_OVERHEAD_FILE, ios::out);
   if(file.is_open()) {
     for(int i = 0; i < OP_TIMES; i++) {
       overhead = getReadOverhead();
       file << overhead << "\n";
-      cout << overhead << " ";
+      sum += overhead;
     }
-    cout << endl;
+    cout << (sum / OP_TIMES) << " cycles" << endl;
     file.close();
   }
   else {
     cout << "Can't open file-" << READ_OVERHEAD_FILE << endl;
   }
 
-  cout << "1.2 Get loop overhead:" << endl;
+  cout << "1.2 Get loop overhead: " ;
+  sum = 0;
   file.open(LOOP_OVERHEAD_FILE, ios::out);
   if(file.is_open()) {
     for(int i = 0; i < OP_TIMES; i++) {
       overhead = getLoopOverhead();
       file << overhead << "\n";
-      cout << overhead << " ";
+      sum += overhead;
     }
-    cout << endl;
+    cout << (sum / OP_TIMES) << " cycles" << endl;
     file.close();
   }
   else {
@@ -366,23 +386,41 @@ void CPUBenchmark::systemCallOverhead(fstream &file) {
   cout << "3. System call overhead starts:" << endl;
 
   double overhead;
+  double sum = 0;
+  cout << "3.1 Get non-cached system call overhead overhead: ";
   file.open(SYSTEM_CALL_OVERHEAD_FILE, ios::out);
   if(file.is_open()) {
     for(int i = 0; i < OP_TIMES; i++) {
-      overhead = getSystemCallOverhead();
+      overhead = getSystemCallOverhead(false);
       file << overhead << "\n";
-      cout << overhead << " ";
+      sum += overhead;
     }
-    cout << endl;
+    cout << (sum / OP_TIMES) << " cycles" << endl;
     file.close();
   }
   else {
     cout << "Can't open file-" << SYSTEM_CALL_OVERHEAD_FILE << endl;
   }
+
+  sum = 0;
+  cout << "3.2 Get cached system call overhead overhead: ";
+  file.open(CACHED_SYSTEM_CALL_OVERHEAD_FILE, ios::out);
+  if(file.is_open()) {
+    for(int i = 0; i < OP_TIMES; i++) {
+      overhead = getSystemCallOverhead(true);
+      file << overhead << "\n";
+      sum += overhead;
+    }
+    cout << (sum / OP_TIMES) << " cycles" << endl;
+    file.close();
+  }
+  else {
+    cout << "Can't open file-" << CACHED_SYSTEM_CALL_OVERHEAD_FILE << endl;
+  }
 }
 
 void CPUBenchmark::contextSwitchOverhead(fstream &file){
-  cout << "Getting Context Switch Overhead..." << endl;
+  cout << "5. Getting Context Switch Overhead..." << endl;
   file.open(PROCESS_CONTEXT_SWITCH_OVERHEAD, ios::out);
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
@@ -400,7 +438,7 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
   if (file.is_open()) {
     for (int i = 0; i < OP_TIMES; i++) {
       double* kernelSwitchAvg = getThreadContextSwitchTime();
-     //  file << kernelSwitchAvg[0] << " " 
+     //  file << kernelSwitchAvg[0] << " "
      //       << kernelSwitchAvg[1] << "\n";
       file << kernelSwitchAvg[0] << "\n";
       }
@@ -415,30 +453,33 @@ void CPUBenchmark::taskCreationTime(fstream &file) {
   cout << "4. Task creation time starts:" << endl;
 
   double overhead;
-  cout << "4.1 Time to create and run a process:" << endl;
+  double sum = 0;
+  cout << "4.1 Time to create and run a process: ";
+  cout.flush();
   file.open(PROCESS_CREATION_TIME_FILE, ios::out);
   if(file.is_open()) {
       for(int i = 0; i < OP_TIMES; i++) {
         overhead = getProcessCreationTime();
         file << overhead << "\n";
-        cout << overhead << " ";
+        sum += overhead;
       }
-      cout<<endl;
+      cout << (sum / OP_TIMES) << " cycles" << endl;
       file.close();
   }
   else {
     cout << "Can't open file-" << PROCESS_CREATION_TIME_FILE << endl;
   }
 
-  cout << "4.2 Time to create and run a kernel-managed thread:" << endl;
+  cout << "4.2 Time to create and run a kernel-managed thread: ";
+  sum = 0;
   file.open(THREAD_CREATION_TIME_FILE, ios::out);
   if(file.is_open()) {
       for(int i = 0; i < OP_TIMES; i++) {
         overhead = getKernelThreadCreationTime();
         file << overhead << "\n";
-        cout << overhead << " ";
+        sum += overhead;
       }
-      cout<<endl;
+      cout << (sum / OP_TIMES) << " cycles" << endl;
       file.close();
   }
   else {

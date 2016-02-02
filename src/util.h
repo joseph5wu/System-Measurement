@@ -145,31 +145,36 @@ static inline unsigned getBase(void) {
 
 }
 
-static inline void warmup(void) {
-   getBase();
-}
 
 static inline uint64_t rdtsc(void) {
    uint32_t lo, hi;
 
    //pushfd
-    __asm__("push %rax");
-    __asm__("push %rcx");
-    __asm__("push %rdx");
-    __asm__("push %rbx");
-
-    __asm__ __volatile__("cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
-
-    //popfd
-    __asm__("pop %rax");
-    __asm__("pop %rcx");
-    __asm__("pop %rdx");
-    __asm__("pop %rbx");
-  //__asm__ __volatile__("xor %%eax, %%eax;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
+    // __asm__("push %rax");
+    // __asm__("push %rcx");
+    // __asm__("push %rdx");
+    // __asm__("push %rbx");
+    //
+    // __asm__ __volatile__("cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
+    //
+    // //popfd
+    // __asm__("pop %rax");
+    // __asm__("pop %rcx");
+    // __asm__("pop %rdx");
+    // __asm__("pop %rbx");
+  __asm__ __volatile__("xor %%eax, %%eax;" "cpuid;" "rdtsc;": "=a" (lo), "=d" (hi));
   // __asm__ volatile ("rdtsc" : "=a" (lo), "=d" (hi));
 
 
   return (((uint64_t)hi << 32) | lo);
+}
+
+
+static inline void warmup(void) {
+  //  getBase();
+  rdtsc();
+  rdtsc();
+  rdtsc();
 }
 
 static inline void fun_0(){}
