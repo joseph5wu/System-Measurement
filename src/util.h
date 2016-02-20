@@ -1,6 +1,12 @@
 #ifndef UTIL_H
 #define UTIL_H
+#include <mach/mach_time.h>
 
+#define NANOS_PER_SECF 1000000000.0
+static mach_timebase_info_data_t info;
+static void __attribute__((constructor)) init_info() {
+  mach_timebase_info(&info);
+}
 // every simple instruction execution times
 #define TIMES 100000
 // every demanded operation execution times
@@ -239,4 +245,15 @@ static inline void fun_5(int arg1, int arg2, int arg3, int arg4, int arg5){}
 static inline void fun_6(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6){}
 
 static inline void fun_7(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7){}
+
+
+double monotonic_time() {
+    uint64_t time = mach_absolute_time();
+    double dtime = (double) time;
+    dtime *= (double) info.numer;
+    dtime /= (double) info.denom;
+    return dtime / NANOS_PER_SECF;
+}
+
+  
 #endif
