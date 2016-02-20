@@ -4,14 +4,89 @@
 
 #define STRIDES_NUMS 4
 #define ARRAYS_NUMS 13
+//#define ARRAYS_NUMS 10
 #define KB 1024
 #define ITERATION 1000000
+//#define ITERATION 100000
 
 
-void latency (uint64_t  arraySize, uint64_t  strideSize) { 
-    uint64_t start;
-    uint64_t end;
-    uint64_t rawTime;
+//no random, no 10 base
+void latency1 (uint64_t  arraySize, uint64_t  strideSize) { 
+    double start;
+    double end;
+    double rawTime;
+    //check the word, hence use char pointer 
+    char ** p_list = new char* [arraySize]; 
+    for ( int i =0; i < arraySize ; i ++) {
+        uint64_t  index =  i/strideSize * strideSize + strideSize;
+        p_list [i] = (char * ) &p_list[index];     // pointer at i point to index 
+    }
+    
+    char ** p = p_list;
+    
+    uint64_t Count = arraySize/ (strideSize ) + 1;
+    //why base 10 , because check bound each time cost a lot of time
+    start = monotonic_time();
+    for ( int i = 0 ; i < ITERATION; i ++ ) {
+         for ( int j = 0; j < Count ; j ++) {
+             
+             p = (char**) *p;
+             
+             }
+         p = p_list;
+     }
+     end = monotonic_time();
+     rawTime = (end - start);
+     std::cout <<"count"<<Count<<"raw time" << rawTime<<std::endl;
+     double time = (double)rawTime / (ITERATION *Count);
+     delete [] p_list;
+     
+     std::cout<<"arraySize: "<<(arraySize * 8) / KB<<"KB strideSize: "<<strideSize<<" taking time.... "<<time <<std::endl;
+     
+
+}
+
+// random, but not base 10 
+void latency2 (uint64_t  arraySize, uint64_t  strideSize) { 
+    double start;
+    double end;
+    double rawTime;
+    //check the word, hence use char pointer 
+    char ** p_list = new char* [arraySize]; 
+    for ( int i =0; i < arraySize ; i ++) {
+        uint64_t  index =  i/strideSize * strideSize + rand() % strideSize % arraySize;
+        p_list [i] = (char * ) &p_list[index];     // pointer at i point to index 
+    }
+    
+    char ** p = p_list;
+    
+    uint64_t Count = arraySize/ (strideSize ) + 1;
+    //why base 10 , because check bound each time cost a lot of time
+    start = monotonic_time();
+    for ( int i = 0 ; i < ITERATION; i ++ ) {
+         for ( int j = 0; j < Count ; j ++) {
+             
+             p = (char**) *p;
+             
+             }
+         p = p_list;
+     }
+     end = monotonic_time();
+     rawTime = (end - start);
+    // std::cout <<"raw time" << rawTime<<std::endl;
+     double time = (double)rawTime / (ITERATION *Count);
+     delete [] p_list;
+     
+     std::cout<<"arraySize: "<<(arraySize * 8) / KB<<"KB strideSize: "<<strideSize<<" taking time.... "<<time <<std::endl;
+     
+
+}
+
+
+void latency3 (uint64_t  arraySize, uint64_t  strideSize) { 
+    double start;
+    double end;
+    double rawTime;
     //check the word, hence use char pointer 
     char ** p_list = new char* [arraySize]; 
     for ( int i =0; i < arraySize ; i ++) {
@@ -28,8 +103,8 @@ void latency (uint64_t  arraySize, uint64_t  strideSize) {
     uint64_t TenLoadBaseIteration =  ITERATION / 10 ;
     uint64_t TenLoadBaseCount = arraySize/ (strideSize * 10) + 1;
     //why base 10 , because check bound each time cost a lot of time
-    start = rdtscStart();
-    for ( int i = 0 ; i < TenLoadBaseCount; i ++ ) {
+    start = monotonic_time();
+    for ( int i = 0 ; i < TenLoadBaseIteration; i ++ ) {
          for ( int j = 0; j < TenLoadBaseCount ; j ++) {
              //10 load as base unit 
              p = (char**) *p;
@@ -44,10 +119,11 @@ void latency (uint64_t  arraySize, uint64_t  strideSize) {
              p = (char**) *p;
              
              }
+          p = p_list;
      }
-     end = rdtscEnd();
+     end = monotonic_time();
      rawTime = (end - start);
-     std::cout <<"raw time" << rawTime<<std::endl;
+  //   std::cout <<"raw time" << rawTime<<std::endl;
      double time = (double)rawTime / (ITERATION * TenLoadBaseCount);
      delete [] p_list;
      
@@ -72,10 +148,32 @@ int main() {
         array_sizes[i] = array_sizes[i-1]<<1;
     }
    
+   
+   
     //start test 
+    std::cout<<"latency 1 ================ "<<std::endl;
     for (int j = 0; j < STRIDES_NUMS; j ++) {
         for ( int i = 0 ; i < ARRAYS_NUMS; i ++) {
-                latency (array_sizes[i], stride_sizes[j]);
+            
+                latency1 (array_sizes[i], stride_sizes[j]);
+         }
+     }
+     
+     //start test 
+    std::cout<<"latency 2 ======================="<<std::endl;
+    for (int j = 0; j < STRIDES_NUMS; j ++) {
+        for ( int i = 0 ; i < ARRAYS_NUMS; i ++) {
+            
+                latency2 (array_sizes[i], stride_sizes[j]);
+         }
+     }
+     
+    //start test 
+    std::cout<<"latency 3=============== "<<std::endl;
+    for (int j = 0; j < STRIDES_NUMS; j ++) {
+        for ( int i = 0 ; i < ARRAYS_NUMS; i ++) {
+            
+                latency3 (array_sizes[i], stride_sizes[j]);
          }
      }
      return 0;
