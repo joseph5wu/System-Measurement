@@ -62,9 +62,9 @@ void read_memory_loop_wrapper(){
         else if ( resultTime > rawTime) 
             resultTime = rawTime;
      }
-     std::err<<fake_receiver;
+     std::cerr<<fake_receiver;
      std::cout <<"reading"<<MULTIPLICATION<<"GB"<<" result Time is "<<resultTime<<std::endl;
-     std::cout <<" bandwidth"<< bw_calculator(MULTIPLICATION , resultTime)<<std::endl;
+     std::cout <<" bandwidth"<< bw_calculator(MULTIPLICATION , resultTime)<<"GB/s"<<std::endl;
      
      
 }
