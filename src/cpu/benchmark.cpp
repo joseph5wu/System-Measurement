@@ -331,18 +331,34 @@ void CPUBenchmark::measurementOverhead(fstream &file) {
   if(file.is_open()) {
     int LOOP_TIMES_ARRAY[15] = {0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
     for(int i = 0; i < 15; i++) {
-      overhead = getLoopOverhead(LOOP_TIMES_ARRAY[i]);
-      file << LOOP_TIMES_ARRAY[i] << " " << overhead << " ";
-
-      cout << "Loop #" << LOOP_TIMES_ARRAY[i] << ": " << overhead << " ";
-
-      if(i != 0) {
-        file << (double) overhead / LOOP_TIMES_ARRAY[i] << "\n";
-        cout << (double) overhead / LOOP_TIMES_ARRAY[i] << " cycles" << endl;
+      overhead = 0;
+      int times = 0;
+      int loopCounts = 0;
+      if(i == 0) {
+        times = TIMES;
+        loopCounts = TIMES;
       }
       else {
-        file << (double) overhead << "\n";
-        cout << (double) overhead << " cycles" << endl;
+        times = TIMES / LOOP_TIMES_ARRAY[i];
+        loopCounts = times * LOOP_TIMES_ARRAY[i];
+      }
+
+
+      for(int j = 0; j < times; j++) {
+        overhead += getLoopOverhead(LOOP_TIMES_ARRAY[i]);
+      }
+
+      file << LOOP_TIMES_ARRAY[i] << " " << overhead / times << " ";
+
+      cout << "Loop #" << LOOP_TIMES_ARRAY[i] << ": " << overhead / times << " ";
+
+      if(i != 0) {
+        file << (double) overhead / loopCounts << "\n";
+        cout << (double) overhead / loopCounts << " cycles" << endl;
+      }
+      else {
+        file << (double) overhead / times << "\n";
+        cout << (double) overhead / times << " cycles" << endl;
       }
     }
     file.close();
@@ -439,6 +455,7 @@ void CPUBenchmark::taskCreationTime(fstream &file) {
       for(int i = 0; i < OP_TIMES; i++) {
         overhead = getProcessCreationTime();
         file << overhead << "\n";
+        file.flush();
         sum += overhead;
       }
       cout << (sum / OP_TIMES) << " cycles" << endl;
@@ -485,7 +502,7 @@ void CPUBenchmark::contextSwitchOverhead(fstream &file){
     return;
   }
 
-  cout << "5.2 Thread Context Switch Overhead: " << endl;
+  cout << "5.2 Thread Context Switch Overhead: ";
   file.open(THREAD_CONTEXT_SWITCH_OVERHEAD, ios::out);
   sum = 0;
   if (file.is_open()) {
