@@ -2,3 +2,4 @@ cpu/*.txt
 .DS_Store
 cpu_bak
 cpu.zip
+memory/*

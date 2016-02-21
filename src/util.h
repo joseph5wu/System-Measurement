@@ -203,7 +203,7 @@ static inline uint64_t rdtscEnd(void) {
                      : "=r" (hi), "=r" (lo)::"%rax", "%rbx", "%rcx", "%rdx"
                      );
 
- 
+
 
 
   return (((uint64_t)hi << 32) | lo);
@@ -255,5 +255,18 @@ double monotonic_time() {
     return dtime / NANOS_PER_SECF;
 }
 
-  
+double getReadOverhead() {
+  uint64_t sum = 0;
+  uint64_t start, end;
+
+  warmup();
+  for(int i = 0; i < TIMES; i++) {
+    start = rdtscStart();
+    end = rdtscEnd();
+    sum += (end - start);
+  }
+
+  return (double)sum / (double)TIMES;
+}
+
 #endif
