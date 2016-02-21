@@ -1,3 +1,5 @@
 cpu/benchmark
 cpu/benchmark.h.gch
 Memory/latency
+Memory/bandwidth 
+Memory/bandwidth_unroll

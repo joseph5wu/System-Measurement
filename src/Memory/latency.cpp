@@ -3,7 +3,7 @@
 
 
 #define STRIDES_NUMS 4
-#define ARRAYS_NUMS 16
+#define ARRAYS_NUMS 13
 //#define ARRAYS_NUMS 10
 #define KB 1024
 #define ITERATION 1000
