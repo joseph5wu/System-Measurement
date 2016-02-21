@@ -3,7 +3,7 @@
 
 
 #define STRIDES_NUMS 4
-#define ARRAYS_NUMS 16
+#define ARRAYS_NUMS 13
 //#define ARRAYS_NUMS 10
 #define KB 1024
 #define ITERATION 1000
@@ -93,7 +93,7 @@ char ** latency2 (uint64_t  arraySize, uint64_t  strideSize) {
 }
 
 
-chamr ** latency3 (uint64_t  arraySize, uint64_t  strideSize) { 
+char ** latency3 (uint64_t  arraySize, uint64_t  strideSize) { 
     double start;
     double end;
     double rawTime;
