@@ -13,12 +13,12 @@ using namespace std;
 #define TEST_FILE DATA_DIR "test"
 #define PAGE_FAULT_DATA DATA_DIR "page_fault_random.csv"
 
-void get_memory_usage(unsigned int& free_pages) {
-  ifstream vm_stat_stream("vm_stat | grep free | awk '{ print $3 }' | sed 's/\.//'", ios_base::in);
-
-  vm_stat_stream >> free_pages;
-  vm_stat_stream.close();
-}
+// void get_memory_usage(unsigned int& free_pages) {
+//   ifstream vm_stat_stream("vm_stat | grep free | awk '{ print $3 }' | sed 's/\.//'", ios_base::in);
+//
+//   vm_stat_stream >> free_pages;
+//   vm_stat_stream.close();
+// }
 
 int main() {
 
@@ -35,7 +35,7 @@ int main() {
     return -1;
   }
 
-  unsigned int FILESIZE = 3435973836;
+  unsigned int FILESIZE = 3435973836; // using only 3GB, since 4GB will overflow int 
   unsigned int PAGESIZE = getpagesize();
   warmup();
 
