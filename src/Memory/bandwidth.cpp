@@ -56,7 +56,7 @@ void write_memory_loop() {
 //ref http://codearcana.com/posts/2013/05/18/achieving-maximum-memory-bandwidth.html
 __m256 read_memory_avx() {
   __m256* varray = (__m256*) array;
-  //__m256 accum = _mm256_set1_ps((float) 0xDEADBEEF);
+
   __m256 accum = _mm256_set1_ps((float)   0x00000000);
   for (int i = 0; i < SIZE/sizeof(__m256i); i++) { // here is __m256i
     accum = _mm256_add_ps(varray[i], accum);
