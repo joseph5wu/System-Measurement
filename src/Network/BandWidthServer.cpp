@@ -11,19 +11,17 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/types.h>
-
+#include "../util.h"
 #include <fstream>
 #include <iostream>
-
-#define MAXBUF 1024 * 16   //16MB
+int MB (1024*1024);
+long  MAXBUF ( MB * 4);  //4 MB buffer ->>>.big buffer will segmentation fault
 
 
 using namespace std;
 
-#define SAMPLES 2
-//#define SAMPLES 8  512b -> 64MB
-int samples (0)
-int startSIZE (512)
+//#define SAMPLES 9
+#define SAMPLES 9
 
 typedef struct CLIENT {
     int fd;
@@ -36,13 +34,26 @@ typedef struct CLIENT {
 ****************************/
 int main(int argc, char** argv)
 {
+    double start = 0;
+    double end = 0;
+    double dataPoints[SAMPLES];
     int cumulation = 0;
-    int currentSample = 0;
+    int currentSampleIndex = 0;
     int sizeList[SAMPLES];
-    sizeList[0] = startSIZE;
-    for (int i = 1 ; i < SAMPLES; i++) {
-        sizeList[i] = sizeList[i-1] *2;
-    }
+    
+    sizeList[0]   =  512;
+    sizeList[1] =  2048;
+    sizeList[2] =  8192;
+    sizeList[3] =  32768;
+    sizeList[4] =  131072;
+    sizeList[5] =  524288;
+    sizeList[6] =  2097152;
+    sizeList[7] =  8388608;
+    sizeList[8] =  33554432;
+
+
+  
+
 
     int i,n,maxi = -1;
     int nready;
@@ -146,6 +157,7 @@ int main(int argc, char** argv)
                         client[i].addr = addr;
                         printf("Yout got a connection from %s.\n",
                                inet_ntoa(client[i].addr.sin_addr));
+                        start = monotonic_time(); 
                         break;
                     }
                 }
@@ -167,15 +179,22 @@ int main(int argc, char** argv)
                     {
                         bzero(buf,MAXBUF + 1);
                         int j_request_type=0;
+                        printf("===== start timer for %d",currentSampleIndex);
+                        
                         if((n = recv(sockfd,buf,MAXBUF,0)) > 0) {
 
-                            printf("received data:%s\n from %s size: %lu\n",buf,inet_ntoa(client[i].addr.sin_addr),strlen(buf));
+                            //printf("received data:%s\n from %s size: %lu\n",buf,inet_ntoa(client[i].addr.sin_addr),strlen(buf));
+                            printf("received data from %s size: %lu\n",inet_ntoa(client[i].addr.sin_addr),strlen(buf));
 
                   
              
-                            if ((cumulation += n) == sizeList[currentSample]) {
-                                printf("one sample done\n");
+                            if ((cumulation += n) == sizeList[currentSampleIndex]) {
+                                printf("one sample done, cumulate at %d\n",cumulation);
+                                printf("=====stop timer for %d\n",currentSampleIndex);
+                                end = monotonic_time();
+                                dataPoints[currentSampleIndex]=(double)(end - start);
                                 cumulation = 0;
+
 
                             }
 
@@ -187,10 +206,22 @@ int main(int argc, char** argv)
                             close(sockfd);
                             FD_CLR(sockfd,&allset);
                             client[i].fd = -1;
-                            if (++currentSample == SAMPLES ) {
+                            currentSampleIndex ++;
+                            if (currentSampleIndex == SAMPLES ) {
                                 printf("going to wrap up\n");
-                                 close(slisten);
-                                 return 0;
+                                close(slisten);
+
+                                 for (int i = 0 ; i < SAMPLES ; i++) {
+                                        if (sizeList[i] < 1024) {
+                                            printf("[%d]IPDataGram SIZE: %d B, time: %fs, SPEED: %f MB/S\n",i,
+                                                             sizeList[i],dataPoints[i],(double)sizeList[i]/1024/1024/dataPoints[i]);
+                                        }
+                                        if (sizeList[i] >= 1024) {
+                                            printf("[%d]IPDataGram SIZE: %d KB, time: %fs, SPEED: %f MB/S\n",i,
+                                                             sizeList[i]/1024,dataPoints[i],(double)sizeList[i]/1024/1024/dataPoints[i]);
+                                        }
+                                    }
+                                return 0;
                             }
                         }
                     }
@@ -198,5 +229,7 @@ int main(int argc, char** argv)
             }
         }
     }
+
+
     close(slisten);
 }

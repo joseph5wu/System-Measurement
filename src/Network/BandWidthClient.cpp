@@ -11,12 +11,13 @@
 #include <sys/types.h>  
 #include "../util.h"
 #include <math.h>
-#define MAXBUF 1024 * 16   //16MB
-
-#define SAMPLES 2
+int MB (1024 * 1024 );    //1MB
+//WTF ? #define MB 1024*1024 
+//#define MAXBUF MB    //1MB
+#define MAXBUF MB    //1MB
+//#define SAMPLES 2
 //#define SAMPLES 8  512b -> 64MB
-int samples (0)
-int startSIZE (512)
+
 
 void updateMin(double &min, double newV) {
     if (newV < min) {
@@ -50,13 +51,9 @@ double standard_deviation(double data[], int n)
 int main(int argc, char **argv)  
 {  
 
+	int TEST_SIZE = atoi(argv[3]);
 
-	int currentSample = 0;
-    int sizeList[SAMPLES];
-    sizeList[0] = startSIZE;
-    for (int i = 1 ; i < SAMPLES; i++) {
-        sizeList[i] = sizeList[i-1] *2;
-    }
+
 
     int sockfd, len;  
     struct sockaddr_in dest;  
@@ -67,24 +64,18 @@ int main(int argc, char **argv)
     int retval, maxfd = -1;  
 
 
-    double  start;
-    double  end;
-    double  rawTime;
-    double  avgTime; //resultTime is the smallest value
 
-    double minTime =1000000;
-    double maxTime = -100000;
 
     bzero(buf, MAXBUF + 1);  
-    for ( int i = 0; i < MAXBUF+1 ; i ++) {
+    for ( int i = 0; i < MAXBUF ; i ++) {
             buf[i] = '0' + i%10;
             if ( (i + 1) % 10 ==0) {
                 buf[i] = 'x';
             }
     }
       
-    if (argc != 3) {  
-            printf("Usage: %s IP Port",argv[0]);  
+    if (argc != 4) {  
+            printf("Usage: %s IP Port and IPDataGramLoad",argv[0]);  
             exit(0);  
         }  
   
@@ -109,53 +100,33 @@ int main(int argc, char **argv)
     printf("connect to server...\n");         
    
   
-    double dataPoint[SAMPLES];
-    double totalTime = 0;
-    int samples = SAMPLES;
-    while (samples >0) {      
-        //start
-        start = monotonic_time(); 
-        len = send(sockfd, buf, strlen(buf) , 0);  
-        if (len > 0)  
-            printf("msg:%s send successful Totalbytes: %d\n", buf, len);  
-        else {  
-            printf("msg:'%s  failed!\n", buf);  
-            continue;
-        }  
 
-        printf("Start receiving echo message\n");  
-        bzero(recBuf, MAXBUF + 1);  
+    if (TEST_SIZE < MB ) {
+    len = send(sockfd, buf, TEST_SIZE , 0);  
+	    if (len > 0)  
+	        printf("msg:%s send successful Totalbytes: %d\n", buf, len);  
+	    else {  
+	        printf("msg:'%s  failed!\n", buf);  
+	    }  
+	} else {
+             printf("TEST_SIZE: %d MB:%d \n",TEST_SIZE,MB);  
+			int sendTime = (int)TEST_SIZE/MB;
+            printf("need to send  %d times\n",sendTime);  
+          
+			while(sendTime-- > 0)  {
+                printf("===================1 MB ======== start\n");  
+			len = send(sockfd, buf, MB , 0);  
+		    if (len > 0)  
+		        printf("msg:%s send successful Totalbytes: %d\n", buf, len);  
+		    else {  
+		        printf("msg:'%s  failed!\n", buf);  
+		    }  
+             printf("===================1 MB ======== end\n");  
+		}
+	}
 
-        int tempRec = 0;
-        while (tempRec != PACKAGE_SIZE) {
-            len = recv(sockfd, recBuf, MAXBUF, 0);
-            if (len > 0)   {
-                printf("recv:'%s, total: %d \n", buf, len);  
-                tempRec = tempRec + len;
-            }
-            else    
-            {  
-                if (len < 0)   
-                    printf("recv failed rrno:%d锛宔rror msg: '%s'\n", errno, strerror(errno));  
-                else  
-                    printf("other exit erminal chat\n");  
-                    
-                continue;
-            }  
-        }
 
-        end = monotonic_time();
-        samples --;
 
-        rawTime = end - start;
-        totalTime += rawTime;
-        updateMax(maxTime,rawTime);
-        updateMin(minTime,rawTime);
-        dataPoint[samples-1] = rawTime*1000;
-        
-    }
-
-    printf("\nTCP round-trip min/avg/max/stddev avgTime is  %f/%f/%f/%f \n",minTime*1000,totalTime/SAMPLES*1000,maxTime*1000,standard_deviation(dataPoint,SAMPLES));
     close(sockfd);  
     return 0;  
 }  
