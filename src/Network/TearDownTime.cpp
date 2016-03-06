@@ -102,7 +102,7 @@ int main(int argc, char **argv)
   
 
 
-        start = monotonic_time(); 
+      
 
 
         if(connect(sockfd, (struct sockaddr *) &dest, sizeof(dest)) != 0) {  
@@ -110,18 +110,24 @@ int main(int argc, char **argv)
             exit(errno);  
         }  
   
-    	//printf("connect to server...\n");   
+    	printf("connect to server...\n");   
 
-      	end = monotonic_time();
+  
+
+        start = monotonic_time(); 
+
+
+        close(sockfd);  
+
+
+        end = monotonic_time();
   
 
         rawTime = end - start;
      
         updateMax(maxTime,rawTime);
         updateMin(minTime,rawTime);
-        dataPoint[i] = rawTime*1000; 
-
-        close(sockfd);  
+        dataPoint[i] = rawTime*1000;
         printf("finish one...\n");   
         i++;
 
