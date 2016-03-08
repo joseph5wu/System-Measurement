@@ -3,3 +3,4 @@ cpu/*.txt
 cpu_bak
 cpu.zip
 memory/*
+fileSystem/*
