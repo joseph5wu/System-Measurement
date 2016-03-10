@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <math.h>
+#include <stdlib.h>
 using namespace std;
 
 #define DATA_DIR "../../data/fileSystem/"
@@ -17,14 +18,34 @@ const int TEST_FILE_NUMBER = 8;
 const int TEST_TIMES = 100;
 const int BLOCK_SIZE = 4096;
 
-void localSequentialRead();
+void localRead(fstream &file, bool isSequential);
+void sequentialRead(int fileIndex, int fd, void* &buffer, double* totalPerFile, fstream &file, double overhead);
+void randomRead(int fileIndex, int fd, void* &buffer, double* totalPerFile, fstream &file, double overhead);
 
 int main() {
-    localSequentialRead();
+
+    // open data file for outputs
+    fstream file;
+    file.open(LOCAL_SEQUENTIAL_READ_DATA, ios::out);
+    if(!file.is_open()) {
+      cout << "Can't open file-" << LOCAL_SEQUENTIAL_READ_DATA << endl;
+    }
+
+    cout << "Local Sequentially Read Start:" << endl;
+    file << "Local Sequentially Read" << "\n";
+    localRead(file, true);
+    cout << "Local Sequentially Read End" << endl;
+
+    cout << "Local Randomly Read Start:" << endl;
+    file << "\n\n\n\n\n" << "Local Randomly Read" << "\n";
+    localRead(file, false);
+    cout << "Local Randomly Read End" << endl;
+
+    file.close();
     return 0;
 }
 
-void localSequentialRead() {
+void localRead(fstream &file, bool isSequential) {
     // pre-create different size of files [4k, ..., 64MB]
     int fd, readBytes;
     uint64_t start, end;
@@ -34,13 +55,6 @@ void localSequentialRead() {
 
     warmup();
     double overhead = getReadOverhead();
-
-    // open data file for outputs
-    fstream file;
-    file.open(LOCAL_SEQUENTIAL_READ_DATA, ios::out);
-    if(!file.is_open()) {
-      cout << "Can't open file-" << LOCAL_SEQUENTIAL_READ_DATA << endl;
-    }
 
     void* buffer = malloc(BLOCK_SIZE);
     double totalPerFile[TEST_FILE_NUMBER];
@@ -65,34 +79,14 @@ void localSequentialRead() {
             }
             // call purge to clear cache
             // system("purge");
-
-            // read file block by block
-            total = 0;
-            readTimes = 0;
-            while(true) {
-                start = rdtscStart();
-                readBytes = read(fd, buffer, BLOCK_SIZE);
-                end = rdtscEnd();
-                if(readBytes > 0) {
-                    total += (double) end - (double) start - overhead;
-                    readTimes++;
-                }
-                else {
-                    break;
-                }
-            }
-            close(fd);
-
-            average = total / readTimes;
-            totalPerFile[j - 1] += average;
-
-            file << average;
-            if(j != TEST_FILE_NUMBER) {
-                file << ", ";
+            if(isSequential) {
+                sequentialRead(j, fd, buffer, totalPerFile, file, overhead);
             }
             else {
-                file << "\n";
+                randomRead(j, fd, buffer, totalPerFile, file, overhead);
             }
+
+            close(fd);
         }
 
         if(i % 10 == 0) {
@@ -107,41 +101,67 @@ void localSequentialRead() {
 
     // close file and free memory
     free(buffer);
-    file.close();
 }
 
-//
-// // Measure random read time
-// cycle_t RandomRead(){
-//     cycle_t time_1,time_2, overhead = READ_OVERHEAD;
-//     char* file_name[5] = {"/home/yren/Download/3.mkv","/home/yren/Download/IP.zip","/home/yren/Download/6.rmvb","/home/yren/Download/12.zip","/home/yren/Download/5.txt"};
-//     int count=3,index;
-//     int fd;
-//
-//     //open file
-//     if((fd= fileOpen(file_name[count],O_DIRECT))<0){
-//         perror("File open error\n");
-//         exit(1);
-//     }
-//     //measure file size
-//     int filesize = measureSize(fd);
-//     int blockcount=filesize/BLOCKSIZE;
-//     int blocksize=BLOCKSIZE;
-//     char * filelocation = malloc(blocksize);
-//     posix_memalign((void **)&filelocation, blocksize, blocksize);
-//     printf("Read Block number is: %d\n",blockcount/STRIDE);
-//     //Read file randomly in stride
-//
-//     time_1 = cyclecount();
-//     //can we try read from the begining, then from the end, then beginning + stride, then end -stride?
-//     for(index=0;index<blockcount/STRIDE;index++){
-//         lseek(fd, blocksize*index*STRIDE, 0);//move to position blocksize After you have used lseek() to seek to a new location, the next I/O operation on the file begins at that location.
-//         read(fd,filelocation,blocksize);//read filesize bytes from discriptor fd to buffer filelocation
-//     }
-//     time_2 = cyclecount();
-//     //free location
-//     free(filelocation);
-//     //close file
-//     close(fd);
-//     return (time_2 - time_1)/CPUFREQ/1000;
-// }
+void sequentialRead(int fileIndex, int fd, void* &buffer, double* totalPerFile, fstream &file, double overhead) {
+    // read file block by block
+    int readBytes;
+    double average;
+    uint64_t start, end;
+    int readTimes = 0;
+    double total = 0;
+    while(true) {
+        start = rdtscStart();
+        readBytes = read(fd, buffer, BLOCK_SIZE);
+        end = rdtscEnd();
+        if(readBytes > 0) {
+            total += (double) end - (double) start - overhead;
+            readTimes++;
+        }
+        else {
+            break;
+        }
+    }
+
+    average = total / readTimes;
+    totalPerFile[fileIndex - 1] += average;
+
+    file << average;
+    if(fileIndex != TEST_FILE_NUMBER) {
+        file << ", ";
+    }
+    else {
+        file << "\n";
+    }
+}
+
+void randomRead(int fileIndex, int fd, void* &buffer, double* totalPerFile, fstream &file, double overhead) {
+    // read file in random block
+    double average;
+    uint64_t start, end;
+    double total = 0;
+
+    off_t blockNumber = (off_t) pow(2.0, fileIndex - 1);
+    off_t offset;
+
+    for(int i = 0; i < blockNumber; i++) {
+        offset = rand() % blockNumber;
+        start = rdtscStart();
+        // using lseek to set offset
+        lseek(fd, offset, SEEK_SET);
+        read(fd, buffer, BLOCK_SIZE);
+        end = rdtscEnd();
+        total += (double) end - (double) start - overhead;
+    }
+
+    average = total / blockNumber;
+    totalPerFile[fileIndex - 1] += average;
+
+    file << average;
+    if(fileIndex != TEST_FILE_NUMBER) {
+        file << ", ";
+    }
+    else {
+        file << "\n";
+    }
+}
