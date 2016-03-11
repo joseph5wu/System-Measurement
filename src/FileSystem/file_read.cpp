@@ -68,10 +68,7 @@ int main() {
 
 void readFile(fstream &file, bool isLocal, bool isSequential) {
     // pre-create different size of files [4k, ..., 64MB]
-    int fd, readBytes;
-    uint64_t start, end;
-    double total, average;
-    int readTimes;
+    int fd;
     const char* fileName;
 
     warmup();
@@ -122,8 +119,8 @@ void readFile(fstream &file, bool isLocal, bool isSequential) {
     }
 
     for(int i = 0; i < TEST_FILE_NUMBER; i++) {
-        average = totalPerFile[i] / TEST_TIMES;
-        cout << "Average time for file size = " << BLOCK_SIZE * pow(4.0, i) / 1024<< "KB is "<< average << endl;
+        cout << "Average time for file size = " << BLOCK_SIZE * pow(4.0, i) / 1024
+             << "KB is "<< totalPerFile[i] / TEST_TIMES << endl;
     }
 
     // close file and free memory
