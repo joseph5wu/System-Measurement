@@ -5,4 +5,5 @@ server
 pingClient
 setupTime
 teardownTime
+*.result
 
