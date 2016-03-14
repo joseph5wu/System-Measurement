@@ -13,12 +13,12 @@ using namespace std;
 #define DATA_DIR "../../data/fileSystem/"
 #define TEST_FILE_PREFIX DATA_DIR "test_"
 #define LOCAL_READ_DATA DATA_DIR "local_read.csv"
-#define REMOTE_DATA_DIR "/private/nfs/"
+#define REMOTE_DATA_DIR "/Volumes/data/fileSystem/"
 #define REMOTE_TEST_FILE_PREFIX REMOTE_DATA_DIR "test_"
 #define REMOTE_READ_DATA DATA_DIR "remote_read.csv"
 
 const int TEST_FILE_NUMBER = 8;
-const int TEST_TIMES = 100;
+const int TEST_TIMES = 10;
 const int BLOCK_SIZE = 4096;
 
 void readFile(fstream &file, bool isLocal, bool isSequential);
@@ -46,32 +46,29 @@ int main() {
 
     file.close();
 
-    // file.open(REMOTE_READ_DATA, ios::out);
-    // if(!file.is_open()) {
-    //     cout << "Can't open file: " << REMOTE_READ_DATA << endl;
-    // }
-    //
-    // cout << "Remote Sequentially Read Start:" << endl;
-    // file << "Remote Sequentially Read" << "\n";
-    // readFile(file, false, true);
-    // cout << "Remote Sequentially Read End" << endl;
-    //
-    // cout << "Remote Randomly Read Start:" << endl;
-    // file << "\n\n\n\n\n" << "Remote Randomly Read" << "\n";
-    // readFile(file, false, false);
-    // cout << "Remote Randomly Read End" << endl;
-    //
-    // file.close();
+    file.open(REMOTE_READ_DATA, ios::out);
+    if(!file.is_open()) {
+        cout << "Can't open file: " << REMOTE_READ_DATA << endl;
+    }
+
+    cout << "Remote Sequentially Read Start:" << endl;
+    file << "Remote Sequentially Read" << "\n";
+    readFile(file, false, true);
+    cout << "Remote Sequentially Read End" << endl;
+
+    cout << "Remote Randomly Read Start:" << endl;
+    file << "\n\n\n\n\n" << "Remote Randomly Read" << "\n";
+    readFile(file, false, false);
+    cout << "Remote Randomly Read End" << endl;
+
+    file.close();
 
     return 0;
 }
 
 void readFile(fstream &file, bool isLocal, bool isSequential) {
     // pre-create different size of files [4k, ..., 64MB]
-    int fd, readBytes;
-    uint64_t start, end;
-    double total, average;
-    int readTimes;
+    int fd;
     const char* fileName;
 
     warmup();
@@ -122,8 +119,8 @@ void readFile(fstream &file, bool isLocal, bool isSequential) {
     }
 
     for(int i = 0; i < TEST_FILE_NUMBER; i++) {
-        average = totalPerFile[i] / TEST_TIMES;
-        cout << "Average time for file size = " << BLOCK_SIZE * pow(4.0, i) / 1024<< "KB is "<< average << endl;
+        cout << "Average time for file size = " << BLOCK_SIZE * pow(4.0, i) / 1024
+             << "KB is "<< totalPerFile[i] / TEST_TIMES << endl;
     }
 
     // close file and free memory
