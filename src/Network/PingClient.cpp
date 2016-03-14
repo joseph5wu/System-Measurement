@@ -13,7 +13,7 @@
 #include <math.h>
 #define MAXBUF 1024  
 #define PACKAGE_SIZE 56
-#define SAMPLES 10
+#define SAMPLES 100
 void updateMin(double &min, double newV) {
     if (newV < min) {
         min = newV;

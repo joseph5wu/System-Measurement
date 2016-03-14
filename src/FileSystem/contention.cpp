@@ -13,12 +13,19 @@ using namespace std;
 #define DATA_DIR "../../data/fileSystem/contention/"
 #define TEST_FILE_PREFIX DATA_DIR "test_"
 #define SEQ_READ_DATA DATA_DIR "seq_read.csv"
+// #define SEQ_READ_DATA DATA_DIR "seq_read.csv"
 #define RAN_READ_DATA DATA_DIR "ran_read.csv"
 
-const int TEST_FILE_NUMBER = 8;
-const int TEST_TIMES = 100;
+// const int TEST_FILE_NUMBER = 8;
+// const int TEST_TIMES = 100;
+// const int BLOCK_SIZE = 4096;
+// const int BLOCK_NUMBER = pow(4, 7);
+
+const int TEST_FILE_NUMBER = 16;
+const int TEST_TIMES = 50;
 const int BLOCK_SIZE = 4096;
-const int BLOCK_NUMBER = pow(4, 7);
+const int BLOCK_NUMBER = pow(4, 4);
+
 
 void readFile(fstream &file, bool isSequential);
 void pureRead(int fileIndex, bool isSequential);
@@ -27,14 +34,14 @@ int main() {
 
     // open data file for outputs
     fstream file;
-    // file.open(SEQ_READ_DATA, ios::out);
-    // if(!file.is_open()) {
-    //   cout << "Can't open file: " << SEQ_READ_DATA << endl;
-    // }
-    // cout << "Contention Only Sequentially Read Start:" << endl;
-    // readFile(file, true);
-    // cout << "Contention Only Sequentially Read End" << endl;
-    // file.close();
+    file.open(SEQ_READ_DATA, ios::out);
+    if(!file.is_open()) {
+      cout << "Can't open file: " << SEQ_READ_DATA << endl;
+    }
+    cout << "Contention Only Sequentially Read Start:" << endl;
+    readFile(file, true);
+    cout << "Contention Only Sequentially Read End" << endl;
+    file.close();
 
     file.open(RAN_READ_DATA, ios::out);
     if(!file.is_open()) {
@@ -60,7 +67,7 @@ void readFile(fstream &file, bool isSequential) {
     void* buffer = malloc(BLOCK_SIZE);
     pid_t pids[TEST_FILE_NUMBER];
     // using TEST_FILE_NUMBER as thread number
-    for(int i = 6; i < 7; i++) {
+    for(int i = 1; i < TEST_FILE_NUMBER; i++) {
         file << "Company process number=" << i << "\n";
         for(int j = 0; j < i; j++) {
             // fork new process
@@ -115,7 +122,7 @@ void readFile(fstream &file, bool isSequential) {
                 }
             }
 
-            average = total / BLOCK_NUMBER;
+            average = (total / BLOCK_NUMBER) * 0.37 / 1000000;
             file << average << "\n";
             file.flush();
             totalAverage += average;
@@ -135,7 +142,7 @@ void pureRead(int fileIndex, bool isSequential) {
     const char* fileName;
     int fd;
     void* buffer = malloc(BLOCK_SIZE);
-    for (int i = 0; i < TEST_TIMES * 1.2; i++) {
+    for (int i = 0; i < TEST_TIMES * 2; i++) {
         fileName = (TEST_FILE_PREFIX + to_string(fileIndex + 1)).c_str();
         fd = open(fileName, O_SYNC | O_RDONLY);
         if(fd < 0) {
@@ -149,6 +156,8 @@ void pureRead(int fileIndex, bool isSequential) {
             return;
         }
 
+        // used to mimic fixed read
+        // if(fileIndex % 2 != 0) {
         if(isSequential) {
             for(int i = 0; i < BLOCK_NUMBER; i++) {
                 read(fd, buffer, BLOCK_SIZE);
