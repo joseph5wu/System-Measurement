@@ -1,5 +1,5 @@
 #!/bin/bash
-mycount=3075
+mycount=4096
 
 for index in $( seq 1 5)
 do
